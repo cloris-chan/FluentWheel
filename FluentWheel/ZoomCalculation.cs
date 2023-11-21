@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Diagnostics;
+using Microsoft.VisualStudio.Utilities;
 
 namespace Cloris.FluentWheel;
 
 internal class ZoomCalculation
 {
-    private readonly Stopwatch _stopwatch = new();
+    private PooledStopwatch _stopwatch;
 
     private double _initialZoomLevel;
     private double _targetZoomLevel;
@@ -33,7 +33,7 @@ internal class ZoomCalculation
             _targetZoomLevel = 20;
 
         _zoomVelocity = Math.Pow(_targetZoomLevel / _initialZoomLevel, 1.0 / Settings.Current.ZoomDuration);
-        _stopwatch.Restart();
+        Start();
     }
 
     public double CalculateZoom()
@@ -52,12 +52,18 @@ internal class ZoomCalculation
         return zoomLevel;
     }
 
+    private void Start()
+    {
+        _stopwatch = PooledStopwatch.StartInstance();
+    }
+
     private void Reset()
     {
+        _stopwatch.Free();
+        _stopwatch = null;
         _initialZoomLevel = 0;
         _targetZoomLevel = 0;
         _zoomVelocity = 0;
-        _stopwatch.Reset();
         IsZooming = false;
     }
 }

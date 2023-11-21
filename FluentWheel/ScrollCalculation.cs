@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Diagnostics;
+using Microsoft.VisualStudio.Utilities;
 
 namespace Cloris.FluentWheel;
 
 internal class ScrollCalculation
 {
-    private readonly Stopwatch _stopwatch = new();
+    private PooledStopwatch _stopwatch;
 
-    public double _totalScrollDistance;
+    private double _totalScrollDistance;
     private double _scrolledDistance;
     private double _scrollSpeed;
     private long _elapsedTime;
@@ -29,7 +29,7 @@ internal class ScrollCalculation
 
         _elapsedTime = 0;
         _scrollSpeed = _totalScrollDistance / Settings.Current.ScrollDuration;
-        _stopwatch.Restart();
+        Start();
     }
 
     public double CalculateDistance()
@@ -50,12 +50,18 @@ internal class ScrollCalculation
         return distance;
     }
 
+    private void Start()
+    {
+        _stopwatch = PooledStopwatch.StartInstance();
+    }
+
     private void Reset()
     {
+        _stopwatch.Free();
+        _stopwatch = null;
         _totalScrollDistance = 0;
         _scrolledDistance = 0;
         _elapsedTime = 0;
-        _stopwatch.Reset();
         IsScrolling = false;
     }
 }
