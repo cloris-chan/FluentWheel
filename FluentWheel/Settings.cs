@@ -122,7 +122,7 @@ internal class Settings(WritableSettingsStore store)
 
     public static async ValueTask InitializeAsync(AsyncPackage package)
     {
-        await package.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
+        await Task.Yield();
 
         var manager = new ShellSettingsManager(package);
         var store = manager.GetWritableSettingsStore(SettingsScope.UserSettings);
