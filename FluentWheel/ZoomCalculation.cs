@@ -19,11 +19,11 @@ internal class ZoomCalculation
 
         if (IsZooming && Math.Sign(_zoomVelocity) == Math.Sign(scale))
         {
-            _targetZoomLevel += _targetZoomLevel * scale;
+            _targetZoomLevel += Math.Truncate(_targetZoomLevel * scale);
         }
         else
         {
-            _targetZoomLevel = currentZoomLevel + currentZoomLevel * scale;
+            _targetZoomLevel = Math.Truncate(currentZoomLevel + currentZoomLevel * scale);
             IsZooming = true;
         }
 
