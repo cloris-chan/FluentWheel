@@ -8,7 +8,11 @@ namespace Cloris.FluentWheel;
 [Name(nameof(MouseProcessorProvider))]
 [ContentType("Text")]
 [TextViewRole(PredefinedTextViewRoles.Interactive)]
-internal class MouseProcessorProvider : IMouseProcessorProvider
+internal class MouseProcessorProvider : MouseProcessorBase, IMouseProcessorProvider
 {
-    public IMouseProcessor GetAssociatedProcessor(IWpfTextView wpfTextView) => new MouseProcessor(wpfTextView);
+    public IMouseProcessor GetAssociatedProcessor(IWpfTextView wpfTextView)
+    {
+        WheelController.Register(wpfTextView);
+        return this;
+    }
 }

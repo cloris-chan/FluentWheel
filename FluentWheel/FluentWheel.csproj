@@ -47,7 +47,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="MouseProcessor.cs" />
     <Compile Include="MouseProcessorProvider.cs" />
     <Compile Include="OptionPage.cs">
       <SubType>Component</SubType>
@@ -55,6 +54,7 @@
     <Compile Include="FluentWheelPackage.cs" />
     <Compile Include="ScrollCalculation.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="WheelCalculator.cs" />
     <Compile Include="WheelController.cs" />
     <Compile Include="ZoomCalculation.cs" />
   </ItemGroup>
