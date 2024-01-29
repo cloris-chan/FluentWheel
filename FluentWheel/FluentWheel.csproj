@@ -47,9 +47,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="MouseProcessor.cs" />
     <Compile Include="MouseProcessorProvider.cs" />
-    <Compile Include="NativeMethods.cs" />
     <Compile Include="OptionPage.cs">
       <SubType>Component</SubType>
     </Compile>

@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using Microsoft.VisualStudio.Text.Editor;
@@ -13,15 +13,14 @@ internal class WheelController
     private const int MK_CONTROL = 0x0008;
     private const int MK_SHIFT = 0x0004;
 
+    private readonly IWpfTextView _wpfTextView;
+
     private readonly ScrollCalculation _horizontalScrollCalculation = new();
     private readonly ScrollCalculation _verticalScrollCalculation = new();
     private readonly ZoomCalculation _zoomCalculation = new();
 
-    private readonly IWpfTextView _wpfTextView;
-    private double _width;
-    private double _height;
-
     private bool _isHooked;
+    private bool _isOnCurrentVisual;
 
     public WheelController(IWpfTextView wpfTextView)
     {
@@ -37,12 +36,6 @@ internal class WheelController
         {
             CompositionTarget.Rendering -= FrameRendering;
             Unhook();
-        };
-
-        _wpfTextView.VisualElement.SizeChanged += (_, e) =>
-        {
-            _width = e.NewSize.Width;
-            _height = e.NewSize.Height;
         };
     }
 
@@ -72,6 +65,8 @@ internal class WheelController
         if (!_isHooked && TryGetHwndSource(out var hwndSource))
         {
             hwndSource.AddHook(Handler);
+            _wpfTextView.VisualElement.MouseEnter += MouseEnter;
+            _wpfTextView.VisualElement.MouseLeave += MouseLeave;
             _isHooked = true;
         }
     }
@@ -81,8 +76,20 @@ internal class WheelController
         if (_isHooked && TryGetHwndSource(out var hwndSource))
         {
             hwndSource.RemoveHook(Handler);
+            _wpfTextView.VisualElement.MouseEnter -= MouseEnter;
+            _wpfTextView.VisualElement.MouseLeave -= MouseLeave;
             _isHooked = false;
         }
+    }
+
+    private void MouseEnter(object sender, MouseEventArgs e)
+    {
+        _isOnCurrentVisual = true;
+    }
+
+    private void MouseLeave(object sender, MouseEventArgs e)
+    {
+        _isOnCurrentVisual = false;
     }
 
     private nint Handler(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
@@ -93,7 +100,7 @@ internal class WheelController
         if (Settings.Current is null)
             return default;
 
-        if (!IsOnCurrentVisualElement(lParam))
+        if (!_isOnCurrentVisual)
             return default;
 
         var delta = (int)wParam >> 16;
@@ -121,46 +128,6 @@ internal class WheelController
         _verticalScrollCalculation.Scroll(delta * Settings.Current.VerticalScrollRate / 100.0);
         handled = true;
         return default;
-    }
-
-    private bool IsOnCurrentVisualElement(nint lParam)
-    {
-        if (!TryGetHwndSource(out var hwndSource))
-            return false;
-
-        var handleRef = new HandleRef(hwndSource, hwndSource.Handle);
-        var pt = new NativeMethods.POINT
-        {
-            X = (int)lParam & 0xFFFF,
-            Y = ((int)lParam >> 16) & 0xFFFF
-        };
-        NativeMethods.ScreenToClient(handleRef, ref pt);
-
-        var point = new Point(pt.X, pt.Y);
-        point = hwndSource.CompositionTarget.TransformFromDevice.Transform(point);
-
-        if (hwndSource.RootVisual is null)
-            return false;
-
-        Matrix visualTransform = Matrix.Identity;
-        if (VisualTreeHelper.GetTransform(hwndSource.RootVisual) is Transform transform)
-            visualTransform = Matrix.Multiply(visualTransform, transform.Value);
-
-        Vector offset = VisualTreeHelper.GetOffset(hwndSource.RootVisual);
-        visualTransform.Translate(offset.X, offset.Y);
-        visualTransform.Invert();
-        point = visualTransform.Transform(point);
-
-        if (hwndSource.RootVisual.TransformToDescendant(_wpfTextView.VisualElement) is not GeneralTransform generalTransform)
-            return false;
-
-        if (!generalTransform.TryTransform(point, out point))
-            return false;
-
-        if (point.X < 0 || point.Y < 0 || point.X > _width || point.Y > _height)
-            return false;
-
-        return true;
     }
 
     private bool TryGetHwndSource(out HwndSource hwndSource)
