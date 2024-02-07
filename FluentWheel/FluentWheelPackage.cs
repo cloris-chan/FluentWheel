@@ -18,5 +18,6 @@ public sealed class FluentWheelPackage : AsyncPackage
     protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
     {
         await Settings.InitializeAsync(this);
+        await WheelController.InitializeAsync(this);
     }
 }

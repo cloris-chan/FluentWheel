@@ -12,7 +12,7 @@ internal class MouseProcessorProvider : MouseProcessorBase, IMouseProcessorProvi
 {
     public IMouseProcessor GetAssociatedProcessor(IWpfTextView wpfTextView)
     {
-        new WheelController(wpfTextView);
+        WheelController.Register(wpfTextView);
         return this;
     }
 }

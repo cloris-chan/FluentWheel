@@ -1,98 +1,126 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Editor;
 
 namespace Cloris.FluentWheel;
 
-internal class WheelController
+internal static class WheelController
 {
     private const int WM_MOUSEWHEEL = 0x020A;
     private const int MK_CONTROL = 0x0008;
     private const int MK_SHIFT = 0x0004;
 
-    private readonly IWpfTextView _wpfTextView;
+    private static readonly ConditionalWeakTable<IWpfTextView, WheelCalculator> _calculators = new();
+    private static readonly HashSet<nint> _hookedHandles = [];
+    private static readonly HashSet<WheelCalculator> _runningCalculators = [];
+    private static IWpfTextView _currentView;
 
-    private readonly ScrollCalculation _horizontalScrollCalculation = new();
-    private readonly ScrollCalculation _verticalScrollCalculation = new();
-    private readonly ZoomCalculation _zoomCalculation = new();
-
-    private bool _isHooked;
-    private bool _isOnCurrentVisual;
-
-    public WheelController(IWpfTextView wpfTextView)
+    public static async ValueTask InitializeAsync(AsyncPackage package)
     {
-        _wpfTextView = wpfTextView;
-
-        _wpfTextView.VisualElement.Loaded += delegate
-        {
-            Hook();
-            CompositionTarget.Rendering += FrameRendering;
-        };
-
-        _wpfTextView.VisualElement.Unloaded += delegate
-        {
-            CompositionTarget.Rendering -= FrameRendering;
-            Unhook();
-        };
+        await package.JoinableTaskFactory.SwitchToMainThreadAsync();
+        CompositionTarget.Rendering += FrameRendering;
     }
 
-    private void FrameRendering(object sender, EventArgs e)
+    public static void Register(IWpfTextView view)
     {
-        if (_verticalScrollCalculation.IsScrolling)
+        if (view.VisualElement.IsInitialized)
         {
-            var distance = _verticalScrollCalculation.CalculateDistance();
-            _wpfTextView.ViewScroller.ScrollViewportVerticallyByPixels(distance);
+            Initialization(view);
+        }
+        else
+        {
+            view.VisualElement.Initialized += delegate
+            {
+                Initialization(view);
+            };
         }
 
-        if (_horizontalScrollCalculation.IsScrolling)
+        if (view.VisualElement.IsLoaded)
         {
-            var distance = _horizontalScrollCalculation.CalculateDistance();
-            _wpfTextView.ViewScroller.ScrollViewportHorizontallyByPixels(distance);
+            Load(view);
         }
-
-        if (_zoomCalculation.IsZooming)
+        else
         {
-            var zoomLevel = _zoomCalculation.CalculateZoom();
-            _wpfTextView.ZoomLevel = zoomLevel;
+            view.VisualElement.Loaded += delegate
+            {
+                Load(view);
+            };
         }
     }
 
-    private void Hook()
+    private static void Initialization(IWpfTextView view)
     {
-        if (!_isHooked && TryGetHwndSource(out var hwndSource))
+        void MouseEnter(object sender, MouseEventArgs e)
         {
+            _currentView = view;
+        }
+
+        void MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (_currentView == view)
+                _currentView = null;
+        }
+
+        view.VisualElement.MouseEnter += MouseEnter;
+        view.VisualElement.MouseLeave += MouseLeave;
+
+        _calculators.Add(view, new WheelCalculator(view));
+    }
+
+    private static void Load(IWpfTextView view)
+    {
+        if (TryGetHwndSource(view, out var hwndSource))
+        {
+            var handle = hwndSource.Handle;
+            if (hwndSource.IsDisposed || _hookedHandles.Contains(handle))
+                return;
+
             hwndSource.AddHook(Handler);
-            _wpfTextView.VisualElement.MouseEnter += MouseEnter;
-            _wpfTextView.VisualElement.MouseLeave += MouseLeave;
-            _isHooked = true;
+            _hookedHandles.Add(handle);
+            hwndSource.Disposed += delegate
+            {
+                _hookedHandles.Remove(handle);
+            };
         }
     }
 
-    private void Unhook()
+    private static void FrameRendering(object sender, EventArgs e)
     {
-        if (_isHooked && TryGetHwndSource(out var hwndSource))
+        if (_runningCalculators.Count == 0)
+            return;
+
+        foreach (var calculator in _runningCalculators)
         {
-            hwndSource.RemoveHook(Handler);
-            _wpfTextView.VisualElement.MouseEnter -= MouseEnter;
-            _wpfTextView.VisualElement.MouseLeave -= MouseLeave;
-            _isHooked = false;
+            if (calculator.VerticalScrollCalculation.IsScrolling)
+            {
+                var distance = calculator.VerticalScrollCalculation.CalculateDistance();
+                calculator.View.ViewScroller.ScrollViewportVerticallyByPixels(distance);
+            }
+
+            if (calculator.HorizontalScrollCalculation.IsScrolling)
+            {
+                var distance = calculator.HorizontalScrollCalculation.CalculateDistance();
+                calculator.View.ViewScroller.ScrollViewportHorizontallyByPixels(distance);
+            }
+
+            if (calculator.ZoomCalculation.IsZooming)
+            {
+                var zoomLevel = calculator.ZoomCalculation.CalculateZoom();
+                calculator.View.ZoomLevel = zoomLevel;
+            }
         }
+
+        _runningCalculators.RemoveWhere(calculator => !calculator.IsRunning);
     }
 
-    private void MouseEnter(object sender, MouseEventArgs e)
-    {
-        _isOnCurrentVisual = true;
-    }
-
-    private void MouseLeave(object sender, MouseEventArgs e)
-    {
-        _isOnCurrentVisual = false;
-    }
-
-    private nint Handler(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
+    private static nint Handler(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
     {
         if (msg is not WM_MOUSEWHEEL)
             return default;
@@ -100,7 +128,7 @@ internal class WheelController
         if (Settings.Current is null)
             return default;
 
-        if (!_isOnCurrentVisual)
+        if (_currentView is null || !_calculators.TryGetValue(_currentView, out var calculator))
             return default;
 
         var delta = (int)wParam >> 16;
@@ -109,7 +137,8 @@ internal class WheelController
         {
             if (Settings.Current.IsZoomingEnabled)
             {
-                _zoomCalculation.Zoom(_wpfTextView.ZoomLevel, delta / 1200.0);
+                calculator.ZoomCalculation.Zoom(calculator.View.ZoomLevel, delta / 1200.0);
+                _runningCalculators.Add(calculator);
                 handled = true;
             }
             return default;
@@ -119,20 +148,22 @@ internal class WheelController
         {
             if (Settings.Current.IsHorizontalScrollingEnabled)
             {
-                _horizontalScrollCalculation.Scroll(delta * Settings.Current.HorizontalScrollRate / -100.0);
+                calculator.HorizontalScrollCalculation.Scroll(delta * Settings.Current.HorizontalScrollRate / -100.0);
+                _runningCalculators.Add(calculator);
                 handled = true;
             }
             return default;
         }
 
-        _verticalScrollCalculation.Scroll(delta * Settings.Current.VerticalScrollRate / 100.0);
+        calculator.VerticalScrollCalculation.Scroll(delta * Settings.Current.VerticalScrollRate / 100.0);
+        _runningCalculators.Add(calculator);
         handled = true;
         return default;
     }
 
-    private bool TryGetHwndSource(out HwndSource hwndSource)
+    private static bool TryGetHwndSource(IWpfTextView view, out HwndSource hwndSource)
     {
-        hwndSource = PresentationSource.FromVisual(_wpfTextView.VisualElement) as HwndSource;
+        hwndSource = PresentationSource.FromVisual(view.VisualElement) as HwndSource;
         return hwndSource is not null;
     }
 }

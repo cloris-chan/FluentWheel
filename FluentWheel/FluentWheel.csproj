@@ -54,6 +54,7 @@
     <Compile Include="FluentWheelPackage.cs" />
     <Compile Include="ScrollCalculation.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="WheelCalculator.cs" />
     <Compile Include="WheelController.cs" />
     <Compile Include="ZoomCalculation.cs" />
   </ItemGroup>
