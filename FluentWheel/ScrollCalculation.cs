@@ -19,7 +19,6 @@ internal class ScrollCalculation
         if (IsScrolling && Math.Sign(_scrollSpeed) == Math.Sign(distance))
         {
             _totalScrollDistance = distance + _totalScrollDistance - _scrolledDistance;
-            _scrolledDistance = 0;
         }
         else
         {
@@ -28,6 +27,7 @@ internal class ScrollCalculation
         }
 
         _elapsedTime = 0;
+        _scrolledDistance = 0;
         _scrollSpeed = _totalScrollDistance / Settings.Current.ScrollDuration;
         Start();
     }
@@ -52,6 +52,7 @@ internal class ScrollCalculation
 
     private void Start()
     {
+        _stopwatch?.Free();
         _stopwatch = PooledStopwatch.StartInstance();
     }
 

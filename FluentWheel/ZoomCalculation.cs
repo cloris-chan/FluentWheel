@@ -54,6 +54,7 @@ internal class ZoomCalculation
 
     private void Start()
     {
+        _stopwatch?.Free();
         _stopwatch = PooledStopwatch.StartInstance();
     }
 
