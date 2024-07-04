@@ -55,7 +55,7 @@ internal class Settings(WritableSettingsStore store)
 
     public int ScrollDuration
     {
-        get => _scrollDuration ??= Get(200);
+        get => _scrollDuration ??= Get(100);
         set
         {
             if (value is < 0)

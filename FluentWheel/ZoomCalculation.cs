@@ -46,8 +46,8 @@ internal class ZoomCalculation
             zoomLevel = _targetZoomLevel;
             Reset();
             return zoomLevel;
-        }
 
+        }
         zoomLevel = _initialZoomLevel * Math.Pow(_zoomVelocity, elsapsedTime);
         return zoomLevel;
     }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="F0A2F81C-BBEC-466B-A7FC-99A68A969B02" Version="1.4.2" Language="en-US" Publisher="Cloris Chan" />
+        <Identity Id="F0A2F81C-BBEC-466B-A7FC-99A68A969B02" Version="1.5.5" Language="en-US" Publisher="Cloris Chan" />
         <DisplayName>Fluent Wheel</DisplayName>
         <Description xml:space="preserve">A smooth scrolling and zooming extension for Visual Studio 2022</Description>
         <MoreInfo>https://github.com/cloris-chan/FluentWheel</MoreInfo>

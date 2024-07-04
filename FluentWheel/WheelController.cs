@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using Microsoft.VisualStudio.Shell;
@@ -15,7 +14,6 @@ internal static class WheelController
 {
     private const int WM_MOUSEWHEEL = 0x020A;
     private const int MK_CONTROL = 0x0008;
-    private const int MK_SHIFT = 0x0004;
 
     private static readonly ConditionalWeakTable<IWpfTextView, WheelCalculator> _calculators = new();
     private static readonly HashSet<nint> _hookedHandles = [];
@@ -41,37 +39,48 @@ internal static class WheelController
                 Initialization(view);
             };
         }
-
-        if (view.VisualElement.IsLoaded)
-        {
-            Load(view);
-        }
-        else
-        {
-            view.VisualElement.Loaded += delegate
-            {
-                Load(view);
-            };
-        }
     }
 
     private static void Initialization(IWpfTextView view)
     {
-        void MouseEnter(object sender, MouseEventArgs e)
+        var viewScroller = new ViewScroller(view);
+
+        var innerViewScrollField = view.GetType().GetField("_viewScroller", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+        if (innerViewScrollField is not null && typeof(IViewScroller).IsAssignableFrom(innerViewScrollField.FieldType))
         {
-            _currentView = view;
+            innerViewScrollField.SetValue(view, viewScroller);
+            _calculators.Add(view, new WheelCalculator(view, viewScroller));
+
+            if (view.VisualElement.IsLoaded)
+            {
+                Load(view);
+            }
+            else
+            {
+                view.VisualElement.Loaded += delegate
+                {
+                    Load(view);
+                };
+            }
+
+            view.VisualElement.MouseEnter += delegate
+            {
+                _currentView = view;
+            };
+            view.VisualElement.MouseLeave += delegate
+            {
+                if (_currentView == view)
+                {
+                    _currentView = null;
+                }
+            };
+
+            if (view.IsMouseOverViewOrAdornments)
+            {
+                _currentView = view;
+            }
         }
-
-        void MouseLeave(object sender, MouseEventArgs e)
-        {
-            if (_currentView == view)
-                _currentView = null;
-        }
-
-        view.VisualElement.MouseEnter += MouseEnter;
-        view.VisualElement.MouseLeave += MouseLeave;
-
-        _calculators.Add(view, new WheelCalculator(view));
     }
 
     private static void Load(IWpfTextView view)
@@ -93,21 +102,23 @@ internal static class WheelController
 
     private static void FrameRendering(object sender, EventArgs e)
     {
-        if (_runningCalculators.Count == 0)
-            return;
-
         foreach (var calculator in _runningCalculators)
         {
+            if (calculator.View?.IsClosed is not false)
+            {
+                continue;
+            }
+
             if (calculator.VerticalScrollCalculation.IsScrolling)
             {
                 var distance = calculator.VerticalScrollCalculation.CalculateDistance();
-                calculator.View.ViewScroller.ScrollViewportVerticallyByPixels(distance);
+                calculator.ViewScroller.VerticallyScroll(distance);
             }
 
             if (calculator.HorizontalScrollCalculation.IsScrolling)
             {
                 var distance = calculator.HorizontalScrollCalculation.CalculateDistance();
-                calculator.View.ViewScroller.ScrollViewportHorizontallyByPixels(distance);
+                calculator.ViewScroller.HorizontallyScroll(distance);
             }
 
             if (calculator.ZoomCalculation.IsZooming)
@@ -117,7 +128,25 @@ internal static class WheelController
             }
         }
 
-        _runningCalculators.RemoveWhere(calculator => !calculator.IsRunning);
+        _runningCalculators.RemoveWhere(calculator => !calculator.IsRunning || calculator.View?.IsClosed is not false);
+    }
+
+    public static void HandleHorizontallyScroll(IWpfTextView view, double distance)
+    {
+        if (_calculators.TryGetValue(view, out var calculator) && calculator.View is not null && !calculator.View.IsClosed)
+        {
+            calculator.HorizontalScrollCalculation.Scroll(distance);
+            _runningCalculators.Add(calculator);
+        }
+    }
+
+    public static void HandleVerticallyScroll(IWpfTextView view, double distance)
+    {
+        if (view?.IsClosed is false && _calculators.TryGetValue(view, out var calculator))
+        {
+            calculator.VerticalScrollCalculation.Scroll(distance);
+            _runningCalculators.Add(calculator);
+        }
     }
 
     private static nint Handler(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
@@ -128,14 +157,14 @@ internal static class WheelController
         if (Settings.Current is null)
             return default;
 
-        if (_currentView is null || !_calculators.TryGetValue(_currentView, out var calculator))
+        if (_currentView is null || !_calculators.TryGetValue(_currentView, out var calculator) || calculator.View is null || calculator.View.IsClosed)
             return default;
 
         var delta = (int)wParam >> 16;
 
         if ((wParam & MK_CONTROL) is MK_CONTROL)
         {
-            if (Settings.Current.IsZoomingEnabled)
+            if (Settings.Current.IsZoomingEnabled && calculator.View is not null && !calculator.View.IsClosed)
             {
                 calculator.ZoomCalculation.Zoom(calculator.View.ZoomLevel, delta / 1200.0);
                 _runningCalculators.Add(calculator);
@@ -144,20 +173,6 @@ internal static class WheelController
             return default;
         }
 
-        if ((wParam & MK_SHIFT) is MK_SHIFT)
-        {
-            if (Settings.Current.IsHorizontalScrollingEnabled)
-            {
-                calculator.HorizontalScrollCalculation.Scroll(delta * Settings.Current.HorizontalScrollRate / -100.0);
-                _runningCalculators.Add(calculator);
-                handled = true;
-            }
-            return default;
-        }
-
-        calculator.VerticalScrollCalculation.Scroll(delta * Settings.Current.VerticalScrollRate / 100.0);
-        _runningCalculators.Add(calculator);
-        handled = true;
         return default;
     }
 

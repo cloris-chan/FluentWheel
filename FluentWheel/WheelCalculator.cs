@@ -2,9 +2,11 @@
 
 namespace Cloris.FluentWheel;
 
-internal class WheelCalculator(IWpfTextView wpfTextView)
+internal class WheelCalculator(IWpfTextView wpfTextView, ViewScroller viewScroller)
 {
-    public IWpfTextView View = wpfTextView;
+    public IWpfTextView View => wpfTextView;
+
+    public ViewScroller ViewScroller => viewScroller;
 
     public ScrollCalculation HorizontalScrollCalculation { get; } = new();
 
