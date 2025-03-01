@@ -127,21 +127,6 @@ internal class ViewScroller(IWpfTextView view) : IViewScroller
 
     public bool ScrollViewportVerticallyByPage(ScrollDirection direction)
     {
-        if (Settings.Current is null)
-        {
-            return viewScroller.ScrollViewportVerticallyByPage(direction);
-        }
-
-        switch (direction)
-        {
-            case ScrollDirection.Up:
-                WheelController.HandleVerticallyScroll(view, view.ViewportHeight);
-                return true;
-            case ScrollDirection.Down:
-                WheelController.HandleVerticallyScroll(view, -view.ViewportHeight);
-                return true;
-            default:
-                return viewScroller.ScrollViewportVerticallyByPage(direction);
-        }
+        return viewScroller.ScrollViewportVerticallyByPage(direction);
     }
 }
