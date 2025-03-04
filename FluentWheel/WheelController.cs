@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ internal static class WheelController
     private const int WM_MOUSEWHEEL = 0x020A;
     private const int MK_CONTROL = 0x0008;
 
+    private static readonly ConcurrentQueue<IWpfTextView> _pendingViews = [];
     private static readonly ConditionalWeakTable<IWpfTextView, WheelCalculator> _calculators = new();
     private static readonly HashSet<nint> _hookedHandles = [];
     private static readonly HashSet<WheelCalculator> _runningCalculators = [];
@@ -23,10 +25,28 @@ internal static class WheelController
     public static async ValueTask InitializeAsync(AsyncPackage package)
     {
         await package.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+        while (_pendingViews.TryDequeue(out var view))
+        {
+            RegisterInternal(view);
+        }
+
         CompositionTarget.Rendering += FrameRendering;
     }
 
     public static void Register(IWpfTextView view)
+    {
+        if (Settings.IsInitialized)
+        {
+            RegisterInternal(view);
+        }
+        else
+        {
+            _pendingViews.Enqueue(view);
+        }
+    }
+
+    private static void RegisterInternal(IWpfTextView view)
     {
         if (view.VisualElement.IsInitialized)
         {

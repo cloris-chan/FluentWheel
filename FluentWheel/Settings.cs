@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Settings;
@@ -21,6 +21,8 @@ internal class Settings(WritableSettingsStore store)
     private int? _zoomDuration;
 
     public static Settings Current { get; private set; }
+
+    public static bool IsInitialized { get; private set; }
 
     public bool IsHorizontalScrollingEnabled
     {
@@ -122,7 +124,7 @@ internal class Settings(WritableSettingsStore store)
 
     public static async ValueTask InitializeAsync(AsyncPackage package)
     {
-        await Task.Yield();
+        await package.JoinableTaskFactory.SwitchToMainThreadAsync();
 
         var manager = new ShellSettingsManager(package);
         var store = manager.GetWritableSettingsStore(SettingsScope.UserSettings);
@@ -131,6 +133,7 @@ internal class Settings(WritableSettingsStore store)
             store.CreateCollection(CollectionPath);
 
         Current = new Settings(store);
+        IsInitialized = true;
     }
 
     private T Get<T>(T defaultValue = default, [CallerMemberName] string key = default)
