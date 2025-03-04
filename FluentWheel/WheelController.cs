@@ -186,7 +186,8 @@ internal static class WheelController
         {
             if (Settings.Current.IsZoomingEnabled && calculator.View is not null && !calculator.View.IsClosed)
             {
-                calculator.ZoomCalculation.Zoom(calculator.View.ZoomLevel, delta / 1200.0);
+                var scale = delta > 0 ? delta / 1200.0 : delta / 1320.0;
+                calculator.ZoomCalculation.Zoom(calculator.View.ZoomLevel, scale);
                 _runningCalculators.Add(calculator);
                 handled = true;
             }
