@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using Microsoft.VisualStudio.Shell;
@@ -187,7 +188,7 @@ internal static class WheelController
             if (Settings.Current.IsZoomingEnabled && calculator.View is not null && !calculator.View.IsClosed)
             {
                 var scale = delta > 0 ? delta / 1200.0 : delta / 1320.0;
-                calculator.ZoomCalculation.Zoom(calculator.View.ZoomLevel, scale);
+                calculator.ZoomCalculation.Zoom(calculator.View.ZoomLevel, scale, Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt));
                 _runningCalculators.Add(calculator);
                 handled = true;
             }

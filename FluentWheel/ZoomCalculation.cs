@@ -1,10 +1,13 @@
-﻿using System;
+using System;
+using System.Linq;
 using Microsoft.VisualStudio.Utilities;
 
 namespace Cloris.FluentWheel;
 
 internal class ZoomCalculation
 {
+    private static readonly int[] _fixedZoomLevels = [20, 25, 35, 50, 75, 100, 125, 150, 175, 200, 250, 300, 350, 400];
+
     private PooledStopwatch _stopwatch;
 
     private double _initialZoomLevel;
@@ -13,24 +16,25 @@ internal class ZoomCalculation
 
     public bool IsZooming { get; private set; }
 
-    public void Zoom(double currentZoomLevel, double scale)
+    public void Zoom(double currentZoomLevel, double scale, bool useFixedZoomLevels)
     {
         _initialZoomLevel = currentZoomLevel;
 
-        if (IsZooming && Math.Sign(_zoomVelocity) == Math.Sign(scale))
+        var baseLevel = IsZooming && Math.Sign(_zoomVelocity) == Math.Sign(scale) ? _targetZoomLevel : currentZoomLevel;
+
+        _targetZoomLevel = useFixedZoomLevels
+            ? scale > 0 ? _fixedZoomLevels.First(x => x > baseLevel || x == 400) : _fixedZoomLevels.Last(x => x < baseLevel || x == 20)
+            : Math.Round(baseLevel + baseLevel * scale) switch
+            {
+                < 20 => 20,
+                > 400 => 400,
+                var level => level,
+            };
+
+        if (!IsZooming)
         {
-            _targetZoomLevel += Math.Truncate(_targetZoomLevel * scale);
-        }
-        else
-        {
-            _targetZoomLevel = Math.Truncate(currentZoomLevel + currentZoomLevel * scale);
             IsZooming = true;
         }
-
-        if (_targetZoomLevel > 400)
-            _targetZoomLevel = 400;
-        else if (_targetZoomLevel < 20)
-            _targetZoomLevel = 20;
 
         _zoomVelocity = Math.Pow(_targetZoomLevel / _initialZoomLevel, 1.0 / Settings.Current.ZoomDuration);
         Start();
@@ -46,8 +50,8 @@ internal class ZoomCalculation
             zoomLevel = _targetZoomLevel;
             Reset();
             return zoomLevel;
-
         }
+
         zoomLevel = _initialZoomLevel * Math.Pow(_zoomVelocity, elsapsedTime);
         return zoomLevel;
     }
