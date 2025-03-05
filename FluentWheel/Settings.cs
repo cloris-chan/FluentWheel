@@ -42,10 +42,12 @@ internal class Settings(WritableSettingsStore store)
         get => _horizontalScrollRate ??= Get(100);
         set
         {
-            if (value is < -400)
-                value = -400;
-            if (value is > 400)
-                value = 400;
+            value = value switch
+            {
+                < -400 => -400,
+                > 400 => 400,
+                _ => value,
+            };
 
             if (_horizontalScrollRate != value)
             {
@@ -60,10 +62,12 @@ internal class Settings(WritableSettingsStore store)
         get => _scrollDuration ??= Get(100);
         set
         {
-            if (value is < 0)
-                value = 0;
-            if (value is > 1000)
-                value = 1000;
+            value = value switch
+            {
+                < 0 => 0,
+                > 1000 => 1000,
+                _ => value,
+            };
 
             if (_scrollDuration != value)
             {
@@ -78,10 +82,12 @@ internal class Settings(WritableSettingsStore store)
         get => _verticalScrollRate ??= Get(100);
         set
         {
-            if (value is < -400)
-                value = -400;
-            if (value is > 400)
-                value = 400;
+            value = value switch
+            {
+                < -400 => -400,
+                > 400 => 400,
+                _ => value,
+            };
 
             if (_verticalScrollRate != value)
             {
@@ -109,10 +115,12 @@ internal class Settings(WritableSettingsStore store)
         get => _zoomDuration ??= Get(100);
         set
         {
-            if (value is < 0)
-                value = 0;
-            if (value is > 1000)
-                value = 1000;
+            value = value switch
+            {
+                < 0 => 0,
+                > 1000 => 1000,
+                _ => value,
+            };
 
             if (_zoomDuration != value)
             {

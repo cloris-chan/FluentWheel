@@ -111,7 +111,9 @@ internal static class WheelController
         {
             var handle = hwndSource.Handle;
             if (hwndSource.IsDisposed || _hookedHandles.Contains(handle))
+            {
                 return;
+            }
 
             hwndSource.AddHook(Handler);
             _hookedHandles.Add(handle);
@@ -124,13 +126,10 @@ internal static class WheelController
 
     private static void FrameRendering(object sender, EventArgs e)
     {
+        _runningCalculators.RemoveWhere(calculator => !calculator.IsRunning || calculator.View is null or { IsClosed: true });
+
         foreach (var calculator in _runningCalculators)
         {
-            if (calculator.View?.IsClosed is not false)
-            {
-                continue;
-            }
-
             if (calculator.VerticalScrollCalculation.IsScrolling)
             {
                 var distance = calculator.VerticalScrollCalculation.CalculateDistance();
@@ -158,13 +157,11 @@ internal static class WheelController
                 }
             }
         }
-
-        _runningCalculators.RemoveWhere(calculator => !calculator.IsRunning || calculator.View?.IsClosed is not false);
     }
 
     public static void HandleHorizontallyScroll(IWpfTextView view, double distance)
     {
-        if (_calculators.TryGetValue(view, out var calculator) && calculator.View is not null && !calculator.View.IsClosed)
+        if (_calculators.TryGetValue(view, out var calculator) && calculator.View is { IsClosed: false })
         {
             calculator.HorizontalScrollCalculation.Scroll(distance);
             _runningCalculators.Add(calculator);
@@ -173,7 +170,7 @@ internal static class WheelController
 
     public static void HandleVerticallyScroll(IWpfTextView view, double distance)
     {
-        if (view?.IsClosed is false && _calculators.TryGetValue(view, out var calculator))
+        if (view is { IsClosed: false } && _calculators.TryGetValue(view, out var calculator))
         {
             calculator.VerticalScrollCalculation.Scroll(distance);
             _runningCalculators.Add(calculator);
@@ -182,20 +179,20 @@ internal static class WheelController
 
     private static nint Handler(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
     {
-        if (msg is not WM_MOUSEWHEEL)
+        if (msg != WM_MOUSEWHEEL
+            || !Settings.IsInitialized
+            || _currentView is null
+            || !_calculators.TryGetValue(_currentView, out var calculator)
+            || calculator.View is null or { IsClosed: true })
+        {
             return default;
-
-        if (Settings.Current is null)
-            return default;
-
-        if (_currentView is null || !_calculators.TryGetValue(_currentView, out var calculator) || calculator.View is null || calculator.View.IsClosed)
-            return default;
+        }
 
         var delta = (int)wParam >> 16;
 
-        if ((wParam & MK_CONTROL) is MK_CONTROL)
+        if ((wParam & MK_CONTROL) == MK_CONTROL)
         {
-            if (Settings.Current.IsZoomingEnabled && calculator.View is not null && !calculator.View.IsClosed)
+            if (Settings.Current.IsZoomingEnabled)
             {
                 var scale = delta > 0 ? delta / 1200.0 : delta / 1320.0;
                 calculator.ZoomCalculation.Zoom(calculator.View.ZoomLevel, scale, Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt));

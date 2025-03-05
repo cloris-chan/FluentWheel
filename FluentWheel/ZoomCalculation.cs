@@ -36,7 +36,7 @@ internal class ZoomCalculation
             IsZooming = true;
         }
 
-        _zoomVelocity = Math.Pow(_targetZoomLevel / _initialZoomLevel, 1.0 / Settings.Current.ZoomDuration);
+        _zoomVelocity = Math.Pow(_targetZoomLevel / _initialZoomLevel, Settings.Current.ZoomDuration == 0 ? 1.0 : 1.0 / Settings.Current.ZoomDuration);
         Start();
     }
 

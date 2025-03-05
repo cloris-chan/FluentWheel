@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.VisualStudio.Utilities;
 
 namespace Cloris.FluentWheel;
@@ -28,7 +28,7 @@ internal class ScrollCalculation
 
         _elapsedTime = 0;
         _scrolledDistance = 0;
-        _scrollSpeed = _totalScrollDistance / Settings.Current.ScrollDuration;
+        _scrollSpeed = Settings.Current.ScrollDuration == 0 ? _totalScrollDistance : _totalScrollDistance / Settings.Current.ScrollDuration;
         Start();
     }
 
