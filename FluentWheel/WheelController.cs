@@ -8,6 +8,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Text.Differencing;
 using Microsoft.VisualStudio.Text.Editor;
 
 namespace Cloris.FluentWheel;
@@ -145,7 +146,16 @@ internal static class WheelController
             if (calculator.ZoomCalculation.IsZooming)
             {
                 var zoomLevel = calculator.ZoomCalculation.CalculateZoom();
-                calculator.View.ZoomLevel = zoomLevel;
+
+                if (calculator.View.TextViewModel is IDifferenceTextViewModel { Viewer: { AreViewsSynchronized: true, LeftView: not null, RightView: not null } } differenceTextViewModel)
+                {
+                    differenceTextViewModel.Viewer.LeftView.ZoomLevel = zoomLevel;
+                    differenceTextViewModel.Viewer.RightView.ZoomLevel = zoomLevel;
+                }
+                else
+                {
+                    calculator.View.ZoomLevel = zoomLevel;
+                }
             }
         }
 
