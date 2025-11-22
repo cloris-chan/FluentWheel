@@ -1,6 +1,6 @@
 # Fluent Wheel
 
-A smooth scrolling and zooming extension for Visual Studio 2022
+A smooth scrolling and zooming extension for Visual Studio 2022 and 2026
 
 Features:
 - Smooth vertical scrolling: enabled by default.
