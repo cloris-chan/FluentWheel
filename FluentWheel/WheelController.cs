@@ -148,12 +148,13 @@ internal static class WheelController
 
                 if (calculator.View.TextViewModel is IDifferenceTextViewModel { Viewer: { AreViewsSynchronized: true, LeftView: not null, RightView: not null } } differenceTextViewModel)
                 {
-                    differenceTextViewModel.Viewer.LeftView.ZoomLevel = zoomLevel;
-                    differenceTextViewModel.Viewer.RightView.ZoomLevel = zoomLevel;
+                    differenceTextViewModel.Viewer.Options.GlobalOptions.SetOptionValue(DefaultWpfViewOptions.ZoomLevelId, zoomLevel);
+                    differenceTextViewModel.Viewer.Options.GlobalOptions.SetOptionValue(DefaultWpfViewOptions.ZoomLevelId, zoomLevel);
                 }
                 else
                 {
-                    calculator.View.ZoomLevel = zoomLevel;
+
+                    calculator.View.Options.GlobalOptions.SetOptionValue(DefaultWpfViewOptions.ZoomLevelId, zoomLevel);
                 }
             }
         }

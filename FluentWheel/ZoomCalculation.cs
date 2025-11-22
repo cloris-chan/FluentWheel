@@ -53,7 +53,7 @@ internal class ZoomCalculation
         }
 
         zoomLevel = _initialZoomLevel * Math.Pow(_zoomVelocity, elsapsedTime);
-        return zoomLevel;
+        return Math.Round(zoomLevel, 5);
     }
 
     private void Start()
