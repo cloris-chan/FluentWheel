@@ -1,0 +1,11 @@
+{
+  "FluentWheel.Settings.Category": "Fluent Wheel",
+  "FluentWheel.Settings.ScrollDuration": "Длительность анимации прокрутки",
+  "FluentWheel.Settings.ScrollDuration.Description": "Длительность анимации прокрутки в миллисекундах (мс).",
+  "FluentWheel.Settings.VerticalScrollRate": "Скорость вертикальной прокрутки",
+  "FluentWheel.Settings.VerticalScrollRate.Description": "Процент (%) для управления скоростью плавной вертикальной прокрутки.",
+  "FluentWheel.Settings.HorizontalScrollRate": "Скорость горизонтальной прокрутки",
+  "FluentWheel.Settings.HorizontalScrollRate.Description": "Процент (%) для управления скоростью плавной горизонтальной прокрутки.",
+  "FluentWheel.Settings.ZoomDuration": "Длительность анимации масштабирования",
+  "FluentWheel.Settings.ZoomDuration.Description": "Длительность анимации масштабирования в миллисекундах (мс)."
+}

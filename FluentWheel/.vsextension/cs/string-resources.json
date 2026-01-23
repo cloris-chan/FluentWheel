@@ -1,0 +1,11 @@
+{
+  "FluentWheel.Settings.Category": "Fluent Wheel",
+  "FluentWheel.Settings.ScrollDuration": "Délka animace posouvání",
+  "FluentWheel.Settings.ScrollDuration.Description": "Doba trvání animace posouvání v milisekundách (ms).",
+  "FluentWheel.Settings.VerticalScrollRate": "Rychlost svislého posouvání",
+  "FluentWheel.Settings.VerticalScrollRate.Description": "Procento (%) určující rychlost vertikálního plynulého posouvání.",
+  "FluentWheel.Settings.HorizontalScrollRate": "Rychlost vodorovného posouvání",
+  "FluentWheel.Settings.HorizontalScrollRate.Description": "Procento (%) určující rychlost horizontálního plynulého posouvání.",
+  "FluentWheel.Settings.ZoomDuration": "Délka animace přiblížení",
+  "FluentWheel.Settings.ZoomDuration.Description": "Doba trvání animace přiblížení v milisekundách (ms)."
+}
