@@ -2,11 +2,17 @@ using Microsoft.VisualStudio.Text.Editor;
 
 namespace Cloris.FluentWheel;
 
-internal sealed class TextViewAnimationState(IWpfTextView wpfTextView, ViewScroller viewScroller)
+internal sealed class TextViewAnimationState
 {
-    public IWpfTextView View => wpfTextView;
+    public TextViewAnimationState(IWpfTextView wpfTextView)
+    {
+        View = wpfTextView;
+        ViewScroller = new ViewScroller(this);
+    }
 
-    public ViewScroller ViewScroller => viewScroller;
+    public IWpfTextView View { get; }
+
+    public ViewScroller ViewScroller { get; }
 
     public ScrollAnimation HorizontalScrollAnimation { get; } = new();
 

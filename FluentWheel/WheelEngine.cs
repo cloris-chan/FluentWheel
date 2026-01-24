@@ -1,7 +1,6 @@
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Editor;
 using System.Collections.Concurrent;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -15,7 +14,6 @@ internal static class WheelEngine
     private const int MK_CONTROL = 0x0008;
 
     private static readonly ConcurrentQueue<IWpfTextView> _pendingViews = [];
-    private static readonly ConditionalWeakTable<IWpfTextView, TextViewAnimationState> _viewAnimationStates = new ();
     private static readonly HashSet<TextViewAnimationState> _activeAnimationStates = [];
 
     public static bool IsInitialized { get; private set; }
@@ -65,39 +63,34 @@ internal static class WheelEngine
 
     private static void InitializeViewComponents(IWpfTextView view)
     {
-        var viewScroller = new ViewScroller(view);
-
         var innerViewScrollField = view.GetType().GetField("_viewScroller", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
         if (innerViewScrollField is not null && typeof(IViewScroller).IsAssignableFrom(innerViewScrollField.FieldType))
         {
-            innerViewScrollField.SetValue(view, viewScroller);
-            _viewAnimationStates.Add(view, new TextViewAnimationState(view, viewScroller));
-
-            HookWindowMessages(view);
+            var animationState = new TextViewAnimationState(view);
+            innerViewScrollField.SetValue(view, animationState.ViewScroller);
+            HookWindowMessages(animationState);
         }
     }
 
-    private static void HookWindowMessages(IWpfTextView view)
+    private static void HookWindowMessages(TextViewAnimationState animationState)
     {
         HwndSource? currentSource = null;
 
         nint Hook(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
         {
-            if (msg != WM_MOUSEWHEEL
-                || (wParam & MK_CONTROL) != MK_CONTROL
-                || VisualTreeHelper.HitTest(view.VisualElement, Mouse.GetPosition(view.VisualElement)) is null
-                || view is null or { IsClosed: true }
-                || !_viewAnimationStates.TryGetValue(view, out var animationState))
+            if (msg == WM_MOUSEWHEEL
+                && (wParam & MK_CONTROL) == MK_CONTROL
+                && !animationState.View.IsClosed
+                && VisualTreeHelper.HitTest(animationState.View.VisualElement, Mouse.GetPosition(animationState.View.VisualElement)) is not null)
             {
-                return default;
+                var delta = (int)wParam >> 16;
+                var scale = delta > 0 ? delta / 1200.0 : delta / 1320.0;
+                animationState.ZoomAnimation.Zoom(animationState.View.ZoomLevel, scale, Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt));
+                _activeAnimationStates.Add(animationState);
+                handled = true;
             }
 
-            var delta = (int)wParam >> 16;
-            var scale = delta > 0 ? delta / 1200.0 : delta / 1320.0;
-            animationState.ZoomAnimation.Zoom(animationState.View.ZoomLevel, scale, Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt));
-            _activeAnimationStates.Add(animationState);
-            handled = true;
             return default;
         }
 
@@ -105,7 +98,9 @@ internal static class WheelEngine
         {
             if (source is { IsDisposed: false } && currentSource != source)
             {
-                currentSource?.RemoveHook(Hook); source.AddHook(Hook); currentSource = source;
+                currentSource?.RemoveHook(Hook);
+                source.AddHook(Hook);
+                currentSource = source;
             }
         }
 
@@ -115,6 +110,7 @@ internal static class WheelEngine
             {
                 currentSource.RemoveHook(Hook);
             }
+
             currentSource = null;
         }
 
@@ -125,29 +121,29 @@ internal static class WheelEngine
                 Detach();
             }
 
-            if (!view.IsClosed && args.NewSource is HwndSource newSource)
+            if (!animationState.View.IsClosed && args.NewSource is HwndSource newSource)
             {
                 Attach(newSource);
             }
 
-            if (view.IsClosed)
+            if (animationState.View.IsClosed)
             {
                 Detach();
-                PresentationSource.RemoveSourceChangedHandler(view.VisualElement, SourceChanged);
+                PresentationSource.RemoveSourceChangedHandler(animationState.View.VisualElement, SourceChanged);
             }
         }
 
-        if (PresentationSource.FromVisual(view.VisualElement) is HwndSource initialSource)
+        if (PresentationSource.FromVisual(animationState.View.VisualElement) is HwndSource initialSource)
         {
             Attach(initialSource);
         }
 
-        PresentationSource.AddSourceChangedHandler(view.VisualElement, SourceChanged);
+        PresentationSource.AddSourceChangedHandler(animationState.View.VisualElement, SourceChanged);
     }
 
     private static void FrameRendering(object sender, EventArgs e)
     {
-        _activeAnimationStates.RemoveWhere(animationState => !animationState.IsAnimating || animationState.View is null or { IsClosed: true });
+        _activeAnimationStates.RemoveWhere(animationState => !animationState.IsAnimating || animationState.View.IsClosed);
 
         foreach (var animationState in _activeAnimationStates)
         {
@@ -171,18 +167,18 @@ internal static class WheelEngine
         }
     }
 
-    public static void HorizontalScroll(IWpfTextView view, double distance)
+    public static void HorizontalScroll(TextViewAnimationState animationState, double distance)
     {
-        if (_viewAnimationStates.TryGetValue(view, out var animationState) && animationState.View is { IsClosed: false })
+        if (!animationState.View.IsClosed)
         {
             animationState.HorizontalScrollAnimation.Scroll(distance);
             _activeAnimationStates.Add(animationState);
         }
     }
 
-    public static void VerticalScroll(IWpfTextView view, double distance)
+    public static void VerticalScroll(TextViewAnimationState animationState, double distance)
     {
-        if (view is { IsClosed: false } && _viewAnimationStates.TryGetValue(view, out var animationState))
+        if (!animationState.View.IsClosed)
         {
             animationState.VerticalScrollAnimation.Scroll(distance);
             _activeAnimationStates.Add(animationState);

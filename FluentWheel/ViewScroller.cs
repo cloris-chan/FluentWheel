@@ -4,49 +4,49 @@ using System.Windows.Input;
 
 namespace Cloris.FluentWheel;
 
-internal sealed class ViewScroller(IWpfTextView view) : IViewScroller
+internal sealed class ViewScroller(TextViewAnimationState animationState) : IViewScroller
 {
-    private readonly IViewScroller viewScroller = view.ViewScroller;
+    private readonly IViewScroller _innerViewScroller = animationState.View.ViewScroller;
 
     public void HorizontallyScroll(double distance)
     {
-        view.ViewportLeft += distance;
+        animationState.View.ViewportLeft += distance;
     }
 
     public void VerticallyScroll(double distance)
     {
-        viewScroller.ScrollViewportVerticallyByPixels(distance);
+        _innerViewScroller.ScrollViewportVerticallyByPixels(distance);
     }
 
     public void EnsureSpanVisible(SnapshotSpan span)
     {
-        viewScroller.EnsureSpanVisible(span);
+        _innerViewScroller.EnsureSpanVisible(span);
     }
 
     public void EnsureSpanVisible(SnapshotSpan span, EnsureSpanVisibleOptions options)
     {
-        viewScroller.EnsureSpanVisible(span, options);
+        _innerViewScroller.EnsureSpanVisible(span, options);
     }
 
     public void EnsureSpanVisible(VirtualSnapshotSpan span, EnsureSpanVisibleOptions options)
     {
-        viewScroller.EnsureSpanVisible(span, options);
+        _innerViewScroller.EnsureSpanVisible(span, options);
     }
 
     public void ScrollViewportHorizontallyByPixels(double distanceToScroll)
     {
-        WheelEngine.HorizontalScroll(view, distanceToScroll * SettingsCache.HorizontalScrollRate / 100.0);
+        WheelEngine.HorizontalScroll(animationState, distanceToScroll * SettingsCache.HorizontalScrollRate / 100.0);
     }
 
     public void ScrollViewportVerticallyByPixels(double distanceToScroll)
     {
         if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
         {
-            WheelEngine.HorizontalScroll(view, distanceToScroll * SettingsCache.HorizontalScrollRate / -100.0);
+            WheelEngine.HorizontalScroll(animationState, distanceToScroll * SettingsCache.HorizontalScrollRate / -100.0);
         }
         else
         {
-            WheelEngine.VerticalScroll(view, distanceToScroll * SettingsCache.VerticalScrollRate / 100.0);
+            WheelEngine.VerticalScroll(animationState, distanceToScroll * SettingsCache.VerticalScrollRate / 100.0);
         }
     }
 
@@ -55,35 +55,24 @@ internal sealed class ViewScroller(IWpfTextView view) : IViewScroller
         switch (direction)
         {
             case ScrollDirection.Up:
-                WheelEngine.VerticalScroll(view, view.LineHeight);
+                WheelEngine.VerticalScroll(animationState, animationState.View.LineHeight);
                 break;
             case ScrollDirection.Down:
-                WheelEngine.VerticalScroll(view, -view.LineHeight);
+                WheelEngine.VerticalScroll(animationState, -animationState.View.LineHeight);
                 break;
             default:
-                viewScroller.ScrollViewportVerticallyByLine(direction);
+                _innerViewScroller.ScrollViewportVerticallyByLine(direction);
                 break;
         }
     }
 
     public void ScrollViewportVerticallyByLines(ScrollDirection direction, int count)
     {
-        switch (direction)
-        {
-            case ScrollDirection.Up:
-                WheelEngine.VerticalScroll(view, view.LineHeight * count);
-                break;
-            case ScrollDirection.Down:
-                WheelEngine.VerticalScroll(view, -view.LineHeight * count);
-                break;
-            default:
-                viewScroller.ScrollViewportVerticallyByLines(direction, count);
-                break;
-        }
+        _innerViewScroller.ScrollViewportVerticallyByLines(direction, count);
     }
 
     public bool ScrollViewportVerticallyByPage(ScrollDirection direction)
     {
-        return viewScroller.ScrollViewportVerticallyByPage(direction);
+        return _innerViewScroller.ScrollViewportVerticallyByPage(direction);
     }
 }
