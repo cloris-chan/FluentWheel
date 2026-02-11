@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Editor;
 using System.Collections.Concurrent;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -63,14 +64,17 @@ internal static class WheelEngine
 
     private static void InitializeViewComponents(IWpfTextView view)
     {
-        var innerViewScrollField = view.GetType().GetField("_viewScroller", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-        if (innerViewScrollField is not null && typeof(IViewScroller).IsAssignableFrom(innerViewScrollField.FieldType))
+        try
         {
+            var innerViewScrollField = view.GetType()
+                .GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
+                .Single(field => typeof(IViewScroller).IsAssignableFrom(field.FieldType));
+
             var animationState = new TextViewAnimationState(view);
             innerViewScrollField.SetValue(view, animationState.ViewScroller);
             HookWindowMessages(animationState);
         }
+        catch (InvalidOperationException) { }
     }
 
     private static void HookWindowMessages(TextViewAnimationState animationState)
