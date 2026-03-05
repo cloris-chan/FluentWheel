@@ -11,13 +11,13 @@ internal static class SettingsCache
 
     public static bool IsInitialized { get; private set; }
 
-    public static int ScrollDuration { get; private set; } = 100;
+    public static int ScrollDuration { get; private set; }
 
-    public static int VerticalScrollRate { get; private set; } = 100;
+    public static int VerticalScrollRate { get; private set; }
 
-    public static int HorizontalScrollRate { get; private set; } = 100;
+    public static int HorizontalScrollRate { get; private set; }
 
-    public static int ZoomDuration { get; private set; } = 100;
+    public static int ZoomDuration { get; private set; }
 
     public static async Task InitializeAsync(VisualStudioExtensibility extensibility, IServiceProvider serviceProvider, CancellationToken cancellationToken)
     {
@@ -32,20 +32,21 @@ internal static class SettingsCache
             SettingsDefinition.ZoomDurationSetting
         ], cancellationToken);
 
-        ScrollDuration = settings.ValueOrDefault(SettingsDefinition.ScrollDurationSetting, 100);
-        VerticalScrollRate = settings.ValueOrDefault(SettingsDefinition.VerticalScrollRateSetting, 100);
-        HorizontalScrollRate = settings.ValueOrDefault(SettingsDefinition.HorizontalScrollRateSetting, 100);
-        ZoomDuration = settings.ValueOrDefault(SettingsDefinition.ZoomDurationSetting, 100);
+        ScrollDuration = settings.ValueOrDefault(SettingsDefinition.ScrollDurationSetting, SettingsDefinition.ScrollDurationSetting.DefaultValue);
+        VerticalScrollRate = settings.ValueOrDefault(SettingsDefinition.VerticalScrollRateSetting, SettingsDefinition.VerticalScrollRateSetting.DefaultValue);
+        HorizontalScrollRate = settings.ValueOrDefault(SettingsDefinition.HorizontalScrollRateSetting, SettingsDefinition.HorizontalScrollRateSetting.DefaultValue);
+        ZoomDuration = settings.ValueOrDefault(SettingsDefinition.ZoomDurationSetting, SettingsDefinition.ZoomDurationSetting.DefaultValue);
 
         IsInitialized = true;
     }
 
     private static Task SettingsChangedAsync(SettingsCategorySnapshot arg)
     {
-        ScrollDuration = arg.ScrollDurationSetting.ValueOrDefault(100);
-        VerticalScrollRate = arg.VerticalScrollRateSetting.ValueOrDefault(100);
-        HorizontalScrollRate = arg.HorizontalScrollRateSetting.ValueOrDefault(100);
-        ZoomDuration = arg.ZoomDurationSetting.ValueOrDefault(100);
+        ScrollDuration = arg.ScrollDurationSetting.ValueOrDefault(SettingsDefinition.ScrollDurationSetting.DefaultValue);
+        VerticalScrollRate = arg.VerticalScrollRateSetting.ValueOrDefault(SettingsDefinition.VerticalScrollRateSetting.DefaultValue);
+        HorizontalScrollRate = arg.HorizontalScrollRateSetting.ValueOrDefault(SettingsDefinition.HorizontalScrollRateSetting.DefaultValue);
+        ZoomDuration = arg.ZoomDurationSetting.ValueOrDefault(SettingsDefinition.ZoomDurationSetting.DefaultValue);
+
         return Task.CompletedTask;
     }
 
