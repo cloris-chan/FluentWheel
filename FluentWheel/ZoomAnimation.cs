@@ -18,7 +18,7 @@ internal sealed class ZoomAnimation
     {
         _initialZoomLevel = currentZoomLevel;
 
-        var baseLevel = IsAnimating && Math.Sign(_zoomVelocity) == Math.Sign(scale) ? _targetZoomLevel : currentZoomLevel;
+        var baseLevel = IsAnimating && Math.Sign(_targetZoomLevel - _initialZoomLevel) == Math.Sign(scale) ? _targetZoomLevel : currentZoomLevel;
 
         _targetZoomLevel = useFixedZoomLevels
             ? scale > 0 ? _fixedZoomLevels.First(x => x > baseLevel || x == 400) : _fixedZoomLevels.Last(x => x < baseLevel || x == 20)
