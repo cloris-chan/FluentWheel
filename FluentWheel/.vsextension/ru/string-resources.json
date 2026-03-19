@@ -2,10 +2,19 @@
   "FluentWheel.Settings.Category": "Fluent Wheel",
   "FluentWheel.Settings.ScrollDuration": "Длительность анимации прокрутки",
   "FluentWheel.Settings.ScrollDuration.Description": "Длительность анимации прокрутки в миллисекундах (мс).",
+  "FluentWheel.Settings.ScrollEasingMode": "Режим анимации прокрутки",
+  "FluentWheel.Settings.ScrollEasingMode.Description": "Режим перехода анимации прокрутки.",
   "FluentWheel.Settings.VerticalScrollRate": "Скорость вертикальной прокрутки",
   "FluentWheel.Settings.VerticalScrollRate.Description": "Процент (%) для управления скоростью плавной вертикальной прокрутки.",
   "FluentWheel.Settings.HorizontalScrollRate": "Скорость горизонтальной прокрутки",
   "FluentWheel.Settings.HorizontalScrollRate.Description": "Процент (%) для управления скоростью плавной горизонтальной прокрутки.",
   "FluentWheel.Settings.ZoomDuration": "Длительность анимации масштабирования",
-  "FluentWheel.Settings.ZoomDuration.Description": "Длительность анимации масштабирования в миллисекундах (мс)."
+  "FluentWheel.Settings.ZoomDuration.Description": "Длительность анимации масштабирования в миллисекундах (мс).",
+  "FluentWheel.Settings.ZoomEasingMode": "Режим анимации масштабирования",
+  "FluentWheel.Settings.ZoomEasingMode.Description": "Режим перехода анимации масштабирования.",
+
+  "FluentWheel.EasingMode.Linear": "Линейный",
+  "FluentWheel.EasingMode.EaseIn": "Плавный вход",
+  "FluentWheel.EasingMode.EaseOut": "Плавный выход",
+  "FluentWheel.EasingMode.EaseInOut": "Плавный вход и выход"
 }

@@ -2,10 +2,19 @@
   "FluentWheel.Settings.Category": "Fluent Wheel",
   "FluentWheel.Settings.ScrollDuration": "Kaydırma animasyonu süresi",
   "FluentWheel.Settings.ScrollDuration.Description": "Kaydırma animasyonunun milisaniye (ms) cinsinden süresi.",
+  "FluentWheel.Settings.ScrollEasingMode": "Kaydırma animasyonu yumuşatma modu",
+  "FluentWheel.Settings.ScrollEasingMode.Description": "Kaydırma animasyonunun yumuşatma modu.",
   "FluentWheel.Settings.VerticalScrollRate": "Dikey kaydırma hızı",
   "FluentWheel.Settings.VerticalScrollRate.Description": "Dikey yumuşak kaydırma hızını kontrol eden yüzde (%).",
   "FluentWheel.Settings.HorizontalScrollRate": "Yatay kaydırma hızı",
   "FluentWheel.Settings.HorizontalScrollRate.Description": "Yatay yumuşak kaydırma hızını kontrol eden yüzde (%).",
   "FluentWheel.Settings.ZoomDuration": "Yakınlaştırma animasyonu süresi",
-  "FluentWheel.Settings.ZoomDuration.Description": "Yakınlaştırma animasyonunun milisaniye (ms) cinsinden süresi."
+  "FluentWheel.Settings.ZoomDuration.Description": "Yakınlaştırma animasyonunun milisaniye (ms) cinsinden süresi.",
+  "FluentWheel.Settings.ZoomEasingMode": "Yakınlaştırma animasyonu yumuşatma modu",
+  "FluentWheel.Settings.ZoomEasingMode.Description": "Yakınlaştırma animasyonunun yumuşatma modu.",
+
+  "FluentWheel.EasingMode.Linear": "Doğrusal",
+  "FluentWheel.EasingMode.EaseIn": "Yavaş başlangıç",
+  "FluentWheel.EasingMode.EaseOut": "Yavaş bitiş",
+  "FluentWheel.EasingMode.EaseInOut": "Yavaş başlangıç ve bitiş"
 }

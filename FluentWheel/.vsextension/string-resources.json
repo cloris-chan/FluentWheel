@@ -2,10 +2,19 @@
   "FluentWheel.Settings.Category": "Fluent Wheel",
   "FluentWheel.Settings.ScrollDuration": "Scroll Duration",
   "FluentWheel.Settings.ScrollDuration.Description": "The duration of the scroll animation in milliseconds (ms).",
+  "FluentWheel.Settings.ScrollEasingMode": "Scroll Easing Mode",
+  "FluentWheel.Settings.ScrollEasingMode.Description": "The easing mode of the scroll animation.",
   "FluentWheel.Settings.VerticalScrollRate": "Vertical Scroll Rate",
   "FluentWheel.Settings.VerticalScrollRate.Description": "Percentage (%) controlling the vertical smooth scrolling speed.",
   "FluentWheel.Settings.HorizontalScrollRate": "Horizontal Scroll Rate",
   "FluentWheel.Settings.HorizontalScrollRate.Description": "Percentage (%) controlling the horizontal smooth scrolling speed.",
   "FluentWheel.Settings.ZoomDuration": "Zoom Duration",
-  "FluentWheel.Settings.ZoomDuration.Description": "The duration of the zoom animation in milliseconds (ms)."
+  "FluentWheel.Settings.ZoomDuration.Description": "The duration of the zoom animation in milliseconds (ms).",
+  "FluentWheel.Settings.ZoomEasingMode": "Zoom Easing Mode",
+  "FluentWheel.Settings.ZoomEasingMode.Description": "The easing mode of the zoom animation.",
+
+  "FluentWheel.EasingMode.Linear": "Linear",
+  "FluentWheel.EasingMode.EaseIn": "Ease In",
+  "FluentWheel.EasingMode.EaseOut": "Ease Out",
+  "FluentWheel.EasingMode.EaseInOut": "Ease In Out"
 }

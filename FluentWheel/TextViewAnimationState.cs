@@ -21,4 +21,6 @@ internal sealed class TextViewAnimationState
     public ZoomAnimation ZoomAnimation { get; } = new();
 
     public bool IsAnimating => HorizontalScrollAnimation.IsAnimating || VerticalScrollAnimation.IsAnimating || ZoomAnimation.IsAnimating;
+
+    public bool CanAnimate => View is { IsClosed: false, InLayout: false };
 }

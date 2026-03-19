@@ -2,10 +2,19 @@
   "FluentWheel.Settings.Category": "Fluent Wheel",
   "FluentWheel.Settings.ScrollDuration": "Durata dell'animazione di scorrimento",
   "FluentWheel.Settings.ScrollDuration.Description": "La durata dell'animazione di scorrimento in millisecondi (ms).",
+  "FluentWheel.Settings.ScrollEasingMode": "Modalità di interpolazione dello scorrimento",
+  "FluentWheel.Settings.ScrollEasingMode.Description": "La modalità di interpolazione dell'animazione di scorrimento.",
   "FluentWheel.Settings.VerticalScrollRate": "Velocità di scorrimento verticale",
   "FluentWheel.Settings.VerticalScrollRate.Description": "Percentuale (%) che controlla la velocità di scorrimento fluido verticale.",
   "FluentWheel.Settings.HorizontalScrollRate": "Velocità di scorrimento orizzontale",
   "FluentWheel.Settings.HorizontalScrollRate.Description": "Percentuale (%) che controlla la velocità di scorrimento fluido orizzontale.",
   "FluentWheel.Settings.ZoomDuration": "Durata dell'animazione di zoom",
-  "FluentWheel.Settings.ZoomDuration.Description": "La durata dell'animazione di zoom in millisecondi (ms)."
+  "FluentWheel.Settings.ZoomDuration.Description": "La durata dell'animazione di zoom in millisecondi (ms).",
+  "FluentWheel.Settings.ZoomEasingMode": "Modalità di interpolazione dello zoom",
+  "FluentWheel.Settings.ZoomEasingMode.Description": "La modalità di interpolazione dell'animazione di zoom.",
+
+  "FluentWheel.EasingMode.Linear": "Lineare",
+  "FluentWheel.EasingMode.EaseIn": "Entrata progressiva",
+  "FluentWheel.EasingMode.EaseOut": "Uscita progressiva",
+  "FluentWheel.EasingMode.EaseInOut": "Entrata e uscita progressive"
 }

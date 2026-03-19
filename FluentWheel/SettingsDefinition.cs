@@ -6,11 +6,22 @@ namespace Cloris.FluentWheel;
 
 internal static class SettingsDefinition
 {
+    private static readonly EnumSettingEntry[] _easingModeSettingEntries =
+    [
+        new EnumSettingEntry(nameof(EasingMode.Linear),"%FluentWheel.EasingMode.Linear%"),
+        new EnumSettingEntry(nameof(EasingMode.EaseIn),"%FluentWheel.EasingMode.EaseIn%"),
+        new EnumSettingEntry(nameof(EasingMode.EaseOut),"%FluentWheel.EasingMode.EaseOut%"),
+        new EnumSettingEntry(nameof(EasingMode.EaseInOut),"%FluentWheel.EasingMode.EaseInOut%"),
+    ];
+
     [VisualStudioContribution]
     internal static SettingCategory SettingsCategory { get; } = new("fluentWheel", "%FluentWheel.Settings.Category%") { GenerateObserverClass = true };
 
     [VisualStudioContribution]
-    internal static Setting.Integer ScrollDurationSetting { get; } = new("scrollDuration", "%FluentWheel.Settings.ScrollDuration%", SettingsCategory, 100) { Description = "%FluentWheel.Settings.ScrollDuration.Description%", Minimum = 0, Maximum = 1000 };
+    internal static Setting.Integer ScrollDurationSetting { get; } = new("scrollDuration", "%FluentWheel.Settings.ScrollDuration%", SettingsCategory, 200) { Description = "%FluentWheel.Settings.ScrollDuration.Description%", Minimum = 0, Maximum = 1000 };
+
+    [VisualStudioContribution]
+    internal static Setting.Enum ScrollEasingModeSetting { get; } = new("scrollEasingMode", "%FluentWheel.Settings.ScrollEasingMode%", SettingsCategory, _easingModeSettingEntries, nameof(EasingMode.EaseOut)) { Description = "%FluentWheel.Settings.ScrollEasingMode.Description%" };
 
     [VisualStudioContribution]
     internal static Setting.Integer VerticalScrollRateSetting { get; } = new("verticalScrollRate", "%FluentWheel.Settings.VerticalScrollRate%", SettingsCategory, 100) { Description = "%FluentWheel.Settings.VerticalScrollRate.Description%", Minimum = -400, Maximum = 400 };
@@ -20,4 +31,7 @@ internal static class SettingsDefinition
 
     [VisualStudioContribution]
     internal static Setting.Integer ZoomDurationSetting { get; } = new("zoomDuration", "%FluentWheel.Settings.ZoomDuration%", SettingsCategory, 100) { Description = "%FluentWheel.Settings.ZoomDuration.Description%", Minimum = 0, Maximum = 1000 };
+
+    [VisualStudioContribution]
+    internal static Setting.Enum ZoomEasingModeSetting { get; } = new("zoomEasingMode", "%FluentWheel.Settings.ZoomEasingMode%", SettingsCategory, _easingModeSettingEntries, nameof(EasingMode.Linear)) { Description = "%FluentWheel.Settings.ZoomEasingMode.Description%" };
 }

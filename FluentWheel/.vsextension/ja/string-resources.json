@@ -2,10 +2,19 @@
   "FluentWheel.Settings.Category": "Fluent Wheel",
   "FluentWheel.Settings.ScrollDuration": "スクロールアニメーションの長さ",
   "FluentWheel.Settings.ScrollDuration.Description": "スクロールアニメーションの長さ (ミリ秒)。",
+  "FluentWheel.Settings.ScrollEasingMode": "スクロールアニメーションのイージングモード",
+  "FluentWheel.Settings.ScrollEasingMode.Description": "スクロールアニメーションのイージングモード。",
   "FluentWheel.Settings.VerticalScrollRate": "垂直スクロール速度",
   "FluentWheel.Settings.VerticalScrollRate.Description": "垂直方向のスムーズスクロール速度を制御する割合 (%)。",
   "FluentWheel.Settings.HorizontalScrollRate": "水平方向スクロール速度",
   "FluentWheel.Settings.HorizontalScrollRate.Description": "水平方向のスムーズスクロール速度を制御する割合 (%)。",
   "FluentWheel.Settings.ZoomDuration": "ズームアニメーションの長さ",
-  "FluentWheel.Settings.ZoomDuration.Description": "ズームアニメーションの長さ (ミリ秒)。"
+  "FluentWheel.Settings.ZoomDuration.Description": "ズームアニメーションの長さ (ミリ秒)。",
+  "FluentWheel.Settings.ZoomEasingMode": "ズームアニメーションのイージングモード",
+  "FluentWheel.Settings.ZoomEasingMode.Description": "ズームアニメーションのイージングモード。",
+
+  "FluentWheel.EasingMode.Linear": "線形",
+  "FluentWheel.EasingMode.EaseIn": "イーズイン",
+  "FluentWheel.EasingMode.EaseOut": "イーズアウト",
+  "FluentWheel.EasingMode.EaseInOut": "イーズインアウト"
 }

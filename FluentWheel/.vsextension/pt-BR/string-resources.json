@@ -2,10 +2,19 @@
   "FluentWheel.Settings.Category": "Fluent Wheel",
   "FluentWheel.Settings.ScrollDuration": "Duração da animação de rolagem",
   "FluentWheel.Settings.ScrollDuration.Description": "A duração da animação de rolagem em milissegundos (ms).",
+  "FluentWheel.Settings.ScrollEasingMode": "Modo de suavização da animação de rolagem",
+  "FluentWheel.Settings.ScrollEasingMode.Description": "O modo de suavização da animação de rolagem.",
   "FluentWheel.Settings.VerticalScrollRate": "Taxa de rolagem vertical",
   "FluentWheel.Settings.VerticalScrollRate.Description": "Percentual (%) que controla a velocidade de rolagem suave vertical.",
   "FluentWheel.Settings.HorizontalScrollRate": "Taxa de rolagem horizontal",
   "FluentWheel.Settings.HorizontalScrollRate.Description": "Percentual (%) que controla a velocidade de rolagem suave horizontal.",
   "FluentWheel.Settings.ZoomDuration": "Duração da animação de zoom",
-  "FluentWheel.Settings.ZoomDuration.Description": "A duração da animação de zoom em milissegundos (ms)."
+  "FluentWheel.Settings.ZoomDuration.Description": "A duração da animação de zoom em milissegundos (ms).",
+  "FluentWheel.Settings.ZoomEasingMode": "Modo de suavização da animação de zoom",
+  "FluentWheel.Settings.ZoomEasingMode.Description": "O modo de suavização da animação de zoom.",
+
+  "FluentWheel.EasingMode.Linear": "Linear",
+  "FluentWheel.EasingMode.EaseIn": "Aceleração inicial",
+  "FluentWheel.EasingMode.EaseOut": "Desaceleração final",
+  "FluentWheel.EasingMode.EaseInOut": "Aceleração e desaceleração"
 }

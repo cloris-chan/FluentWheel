@@ -11,9 +11,6 @@ namespace Cloris.FluentWheel;
 
 internal static class WheelEngine
 {
-    private const int WM_MOUSEWHEEL = 0x020A;
-    private const int MK_CONTROL = 0x0008;
-
     private static readonly ConcurrentQueue<IWpfTextView> _pendingViews = [];
     private static readonly HashSet<TextViewAnimationState> _activeAnimationStates = [];
 
@@ -79,13 +76,16 @@ internal static class WheelEngine
 
     private static void HookWindowMessages(TextViewAnimationState animationState)
     {
+        const int WM_MOUSEWHEEL = 0x020A;
+        const int MK_CONTROL = 0x0008;
+
         HwndSource? currentSource = null;
 
         nint Hook(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
         {
             if (msg == WM_MOUSEWHEEL
                 && (wParam & MK_CONTROL) == MK_CONTROL
-                && !animationState.View.IsClosed
+                && animationState.CanAnimate
                 && VisualTreeHelper.HitTest(animationState.View.VisualElement, Mouse.GetPosition(animationState.View.VisualElement)) is not null)
             {
                 var delta = (int)wParam >> 16;
@@ -120,7 +120,7 @@ internal static class WheelEngine
 
         void SourceChanged(object? sender, SourceChangedEventArgs args)
         {
-            if (args.OldSource is HwndSource { IsDisposed: false } oldSource)
+            if (args.OldSource is HwndSource { IsDisposed: false })
             {
                 Detach();
             }
@@ -151,6 +151,11 @@ internal static class WheelEngine
 
         foreach (var animationState in _activeAnimationStates)
         {
+            if (!animationState.CanAnimate)
+            {
+                continue;
+            }
+
             if (animationState.VerticalScrollAnimation.IsAnimating)
             {
                 var distance = animationState.VerticalScrollAnimation.CalculateDistance();
@@ -165,7 +170,7 @@ internal static class WheelEngine
 
             if (animationState.ZoomAnimation.IsAnimating)
             {
-                var zoomLevel = animationState.ZoomAnimation.CalculateZoom();
+                var zoomLevel = animationState.ZoomAnimation.CalculateZoomLevel();
                 animationState.View.Options.GlobalOptions.SetOptionValue(DefaultWpfViewOptions.ZoomLevelId, zoomLevel);
             }
         }
@@ -173,7 +178,7 @@ internal static class WheelEngine
 
     public static void HorizontalScroll(TextViewAnimationState animationState, double distance)
     {
-        if (!animationState.View.IsClosed)
+        if (animationState.CanAnimate)
         {
             animationState.HorizontalScrollAnimation.Scroll(distance);
             _activeAnimationStates.Add(animationState);
@@ -182,7 +187,7 @@ internal static class WheelEngine
 
     public static void VerticalScroll(TextViewAnimationState animationState, double distance)
     {
-        if (!animationState.View.IsClosed)
+        if (animationState.CanAnimate)
         {
             animationState.VerticalScrollAnimation.Scroll(distance);
             _activeAnimationStates.Add(animationState);

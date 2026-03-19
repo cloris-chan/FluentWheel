@@ -2,10 +2,19 @@
   "FluentWheel.Settings.Category": "Fluent Wheel",
   "FluentWheel.Settings.ScrollDuration": "Czas trwania animacji przewijania",
   "FluentWheel.Settings.ScrollDuration.Description": "Czas trwania animacji przewijania w milisekundach (ms).",
+  "FluentWheel.Settings.ScrollEasingMode": "Tryb wygładzania animacji przewijania",
+  "FluentWheel.Settings.ScrollEasingMode.Description": "Tryb wygładzania animacji przewijania.",
   "FluentWheel.Settings.VerticalScrollRate": "Prędkość przewijania pionowego",
   "FluentWheel.Settings.VerticalScrollRate.Description": "Procent (%) kontrolujący prędkość pionowego płynnego przewijania.",
   "FluentWheel.Settings.HorizontalScrollRate": "Prędkość przewijania poziomego",
   "FluentWheel.Settings.HorizontalScrollRate.Description": "Procent (%) kontrolujący prędkość poziomego płynnego przewijania.",
   "FluentWheel.Settings.ZoomDuration": "Czas trwania animacji powiększenia",
-  "FluentWheel.Settings.ZoomDuration.Description": "Czas trwania animacji powiększenia w milisekundach (ms)."
+  "FluentWheel.Settings.ZoomDuration.Description": "Czas trwania animacji powiększenia w milisekundach (ms).",
+  "FluentWheel.Settings.ZoomEasingMode": "Tryb wygładzania animacji powiększenia",
+  "FluentWheel.Settings.ZoomEasingMode.Description": "Tryb wygładzania animacji powiększenia.",
+
+  "FluentWheel.EasingMode.Linear": "Liniowy",
+  "FluentWheel.EasingMode.EaseIn": "Łagodne wejście",
+  "FluentWheel.EasingMode.EaseOut": "Łagodne wyjście",
+  "FluentWheel.EasingMode.EaseInOut": "Łagodne wejście i wyjście"
 }

@@ -1,67 +1,48 @@
-using Microsoft.VisualStudio.Utilities;
-
 namespace Cloris.FluentWheel;
 
-internal sealed class ScrollAnimation
+internal sealed class ScrollAnimation : AnimationBase
 {
-    private PooledStopwatch? _stopwatch;
+    protected override double Duration => SettingsCache.ScrollDuration;
 
-    private double _totalScrollDistance;
-    private double _scrolledDistance;
-    private double _scrollSpeed;
-    private long _elapsedTime;
+    protected override EasingMode EasingMode => SettingsCache.ScrollEasingMode;
 
-    public bool IsAnimating { get; private set; } = false;
+    protected override double Tolerance => 0.0001;
 
     public void Scroll(double distance)
     {
-        if (IsAnimating && Math.Sign(_scrollSpeed) == Math.Sign(distance))
+        double startValue, targetValue;
+
+        if (IsAnimating)
         {
-            _totalScrollDistance = distance + _totalScrollDistance - _scrolledDistance;
+            var previousTargetValue = _targetValue;
+            startValue = GetCurrentValue().Next;
+            targetValue = Math.Sign(previousTargetValue - startValue) == Math.Sign(distance)
+                ? previousTargetValue + distance
+                : startValue + distance;
         }
         else
         {
-            _totalScrollDistance = distance;
-            IsAnimating = true;
+            startValue = 0;
+            targetValue = distance;
         }
 
-        _elapsedTime = 0;
-        _scrolledDistance = 0;
-        _scrollSpeed = SettingsCache.ScrollDuration == 0 ? _totalScrollDistance : _totalScrollDistance / SettingsCache.ScrollDuration;
-        Start();
+        BeginAnimation(startValue, targetValue);
     }
 
     public double CalculateDistance()
     {
-        var elapsedTime = _stopwatch!.ElapsedMilliseconds;
-        double distance;
-
-        if (elapsedTime >= SettingsCache.ScrollDuration)
+        if (!IsAnimating)
         {
-            distance = _totalScrollDistance - _scrolledDistance;
-            Reset();
-            return distance;
+            return 0;
         }
 
-        distance = _scrollSpeed * (elapsedTime - _elapsedTime);
-        _elapsedTime = elapsedTime;
-        _scrolledDistance += distance;
-        return distance;
+        var (previous, next) = GetCurrentValue();
+
+        return next - previous;
     }
 
-    private void Start()
+    protected override double InterpolateValue(double progress)
     {
-        _stopwatch?.Free();
-        _stopwatch = PooledStopwatch.StartInstance();
-    }
-
-    private void Reset()
-    {
-        _stopwatch?.Free();
-        _stopwatch = null;
-        _totalScrollDistance = 0;
-        _scrolledDistance = 0;
-        _elapsedTime = 0;
-        IsAnimating = false;
+        return _startValue + ((_targetValue - _startValue) * progress);
     }
 }

@@ -2,10 +2,19 @@
   "FluentWheel.Settings.Category": "Fluent Wheel",
   "FluentWheel.Settings.ScrollDuration": "滚动动画持续时间",
   "FluentWheel.Settings.ScrollDuration.Description": "滚动动画的持续时间（毫秒）。",
+  "FluentWheel.Settings.ScrollEasingMode": "滚动动画缓动模式",
+  "FluentWheel.Settings.ScrollEasingMode.Description": "滚动动画的缓动模式。",
   "FluentWheel.Settings.VerticalScrollRate": "纵向滚动速率",
   "FluentWheel.Settings.VerticalScrollRate.Description": "纵向平滑滚动速度的百分比 (%) 值。",
   "FluentWheel.Settings.HorizontalScrollRate": "横向滚动速率",
   "FluentWheel.Settings.HorizontalScrollRate.Description": "横向平滑滚动速度的百分比 (%) 值。",
   "FluentWheel.Settings.ZoomDuration": "缩放动画持续时间",
-  "FluentWheel.Settings.ZoomDuration.Description": "缩放动画的持续时间（毫秒）。"
+  "FluentWheel.Settings.ZoomDuration.Description": "缩放动画的持续时间（毫秒）。",
+  "FluentWheel.Settings.ZoomEasingMode": "缩放动画缓动模式",
+  "FluentWheel.Settings.ZoomEasingMode.Description": "缩放动画的缓动模式。",
+
+  "FluentWheel.EasingMode.Linear": "线性",
+  "FluentWheel.EasingMode.EaseIn": "渐入",
+  "FluentWheel.EasingMode.EaseOut": "渐出",
+  "FluentWheel.EasingMode.EaseInOut": "渐入渐出"
 }
