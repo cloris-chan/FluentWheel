@@ -1,0 +1,13 @@
+SetWindowsHookEx
+CallNextHookEx
+GetMessage
+PostThreadMessage
+GetAsyncKeyState
+GetCurrentThreadId
+GetModuleHandle
+MSLLHOOKSTRUCT
+HC_ACTION
+WM_MOUSEWHEEL
+WM_MOUSEHWHEEL
+WM_QUIT
+VIRTUAL_KEY

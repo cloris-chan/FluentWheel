@@ -12,6 +12,8 @@
   "FluentWheel.Settings.ZoomDuration.Description": "La duración de la animación de zoom en milisegundos (ms).",
   "FluentWheel.Settings.ZoomEasingMode": "Modo de interpolación del zoom",
   "FluentWheel.Settings.ZoomEasingMode.Description": "El modo de interpolación de la animación de zoom.",
+  "FluentWheel.Settings.EnableLowLevelMouseHook": "Habilitar gancho de ratón de bajo nivel",
+  "FluentWheel.Settings.EnableLowLevelMouseHook.Description": "Pruebe a habilitarlo si el desplazamiento o el zoom se sienten lentos. Esto es más común en editores con diseños complejos o cuando sticky scroll está habilitado.",
 
   "FluentWheel.EasingMode.Linear": "Lineal",
   "FluentWheel.EasingMode.EaseIn": "Aceleración inicial",

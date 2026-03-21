@@ -12,6 +12,8 @@
   "FluentWheel.Settings.ZoomDuration.Description": "확대/축소 애니메이션의 지속 시간(밀리초(ms)).",
   "FluentWheel.Settings.ZoomEasingMode": "확대/축소 애니메이션 이징 모드",
   "FluentWheel.Settings.ZoomEasingMode.Description": "확대/축소 애니메이션의 이징 모드.",
+  "FluentWheel.Settings.EnableLowLevelMouseHook": "저수준 마우스 후크 사용",
+  "FluentWheel.Settings.EnableLowLevelMouseHook.Description": "스크롤이나 확대/축소가 지연되는 느낌이 들면 켜 보세요. 복잡한 레이아웃의 편집기이거나 sticky scroll이 켜져 있을 때 더 자주 발생합니다.",
 
   "FluentWheel.EasingMode.Linear": "선형",
   "FluentWheel.EasingMode.EaseIn": "서서히 시작",

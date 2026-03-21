@@ -12,6 +12,8 @@
   "FluentWheel.Settings.ZoomDuration.Description": "Длительность анимации масштабирования в миллисекундах (мс).",
   "FluentWheel.Settings.ZoomEasingMode": "Режим анимации масштабирования",
   "FluentWheel.Settings.ZoomEasingMode.Description": "Режим перехода анимации масштабирования.",
+  "FluentWheel.Settings.EnableLowLevelMouseHook": "Включить низкоуровневый хук мыши",
+  "FluentWheel.Settings.EnableLowLevelMouseHook.Description": "Попробуйте включить этот параметр, если прокрутка или масштабирование ощущаются заторможенными. Это чаще встречается в редакторах со сложной компоновкой или при включённом sticky scroll.",
 
   "FluentWheel.EasingMode.Linear": "Линейный",
   "FluentWheel.EasingMode.EaseIn": "Плавный вход",

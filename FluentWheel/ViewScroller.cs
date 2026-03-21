@@ -1,17 +1,12 @@
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
-using System.Windows;
 using System.Windows.Input;
 
 namespace Cloris.FluentWheel;
 
 internal sealed class ViewScroller(TextViewAnimationState animationState) : IViewScroller
 {
-    private const double DefaultWheelScrollLines = 3.0;
-
     private readonly IViewScroller _innerViewScroller = animationState.View.ViewScroller;
-
-    private static double WheelScrollFactor => SystemParameters.WheelScrollLines > 0 ? SystemParameters.WheelScrollLines / DefaultWheelScrollLines : 1.0;
 
     public void HorizontallyScroll(double distance)
     {
@@ -47,11 +42,11 @@ internal sealed class ViewScroller(TextViewAnimationState animationState) : IVie
     {
         if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
         {
-            WheelEngine.HorizontalScroll(animationState, distanceToScroll * WheelScrollFactor * SettingsCache.HorizontalScrollRate / -100.0);
+            WheelEngine.HorizontalScroll(animationState, distanceToScroll * SettingsCache.HorizontalScrollRate / -100.0);
         }
         else
         {
-            WheelEngine.VerticalScroll(animationState, distanceToScroll * WheelScrollFactor * SettingsCache.VerticalScrollRate / 100.0);
+            WheelEngine.VerticalScroll(animationState, distanceToScroll * SettingsCache.VerticalScrollRate / 100.0);
         }
     }
 
@@ -73,7 +68,18 @@ internal sealed class ViewScroller(TextViewAnimationState animationState) : IVie
 
     public void ScrollViewportVerticallyByLines(ScrollDirection direction, int count)
     {
-        _innerViewScroller.ScrollViewportVerticallyByLines(direction, count);
+        switch (direction)
+        {
+            case ScrollDirection.Up:
+                WheelEngine.VerticalScroll(animationState, animationState.View.LineHeight * count);
+                break;
+            case ScrollDirection.Down:
+                WheelEngine.VerticalScroll(animationState, -animationState.View.LineHeight * count);
+                break;
+            default:
+                _innerViewScroller.ScrollViewportVerticallyByLines(direction, count);
+                break;
+        }
     }
 
     public bool ScrollViewportVerticallyByPage(ScrollDirection direction)

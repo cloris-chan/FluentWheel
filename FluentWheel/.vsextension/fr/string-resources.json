@@ -12,6 +12,8 @@
   "FluentWheel.Settings.ZoomDuration.Description": "La durée de l'animation de zoom en millisecondes (ms).",
   "FluentWheel.Settings.ZoomEasingMode": "Mode d'accélération du zoom",
   "FluentWheel.Settings.ZoomEasingMode.Description": "Le mode d'accélération de l'animation de zoom.",
+  "FluentWheel.Settings.EnableLowLevelMouseHook": "Activer le hook souris de bas niveau",
+  "FluentWheel.Settings.EnableLowLevelMouseHook.Description": "Essayez de l'activer si le défilement ou le zoom semble lent. Cela est plus fréquent dans les éditeurs à mise en page complexe ou lorsque sticky scroll est activé.",
 
   "FluentWheel.EasingMode.Linear": "Linéaire",
   "FluentWheel.EasingMode.EaseIn": "Accélération en entrée",

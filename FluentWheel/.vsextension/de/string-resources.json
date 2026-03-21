@@ -12,6 +12,8 @@
   "FluentWheel.Settings.ZoomDuration.Description": "Die Dauer der Zoomanimation in Millisekunden (ms).",
   "FluentWheel.Settings.ZoomEasingMode": "Übergangsart der Zoomanimation",
   "FluentWheel.Settings.ZoomEasingMode.Description": "Die Übergangsart der Zoomanimation.",
+  "FluentWheel.Settings.EnableLowLevelMouseHook": "Low-Level-Maus-Hook aktivieren",
+  "FluentWheel.Settings.EnableLowLevelMouseHook.Description": "Aktivieren Sie dies testweise, wenn sich Scrollen oder Zoomen verzögert anfühlt. Das tritt häufiger in Editoren mit komplexem Layout oder bei aktiviertem Sticky Scroll auf.",
 
   "FluentWheel.EasingMode.Linear": "Linear",
   "FluentWheel.EasingMode.EaseIn": "Sanfter Eingang",

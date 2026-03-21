@@ -30,8 +30,11 @@ internal static class SettingsDefinition
     internal static Setting.Integer HorizontalScrollRateSetting { get; } = new("horizontalScrollRate", "%FluentWheel.Settings.HorizontalScrollRate%", SettingsCategory, 100) { Description = "%FluentWheel.Settings.HorizontalScrollRate.Description%", Minimum = -400, Maximum = 400 };
 
     [VisualStudioContribution]
-    internal static Setting.Integer ZoomDurationSetting { get; } = new("zoomDuration", "%FluentWheel.Settings.ZoomDuration%", SettingsCategory, 100) { Description = "%FluentWheel.Settings.ZoomDuration.Description%", Minimum = 0, Maximum = 1000 };
+    internal static Setting.Integer ZoomDurationSetting { get; } = new("zoomDuration", "%FluentWheel.Settings.ZoomDuration%", SettingsCategory, 200) { Description = "%FluentWheel.Settings.ZoomDuration.Description%", Minimum = 0, Maximum = 1000 };
 
     [VisualStudioContribution]
-    internal static Setting.Enum ZoomEasingModeSetting { get; } = new("zoomEasingMode", "%FluentWheel.Settings.ZoomEasingMode%", SettingsCategory, _easingModeSettingEntries, nameof(EasingMode.Linear)) { Description = "%FluentWheel.Settings.ZoomEasingMode.Description%" };
+    internal static Setting.Enum ZoomEasingModeSetting { get; } = new("zoomEasingMode", "%FluentWheel.Settings.ZoomEasingMode%", SettingsCategory, _easingModeSettingEntries, nameof(EasingMode.EaseOut)) { Description = "%FluentWheel.Settings.ZoomEasingMode.Description%" };
+
+    [VisualStudioContribution]
+    internal static Setting.Boolean EnableLowLevelMouseHookSetting { get; } = new("enableLowLevelMouseHook", "%FluentWheel.Settings.EnableLowLevelMouseHook%", SettingsCategory, false) { Description = "%FluentWheel.Settings.EnableLowLevelMouseHook.Description%" };
 }

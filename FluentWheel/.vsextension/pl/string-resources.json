@@ -12,6 +12,8 @@
   "FluentWheel.Settings.ZoomDuration.Description": "Czas trwania animacji powiększenia w milisekundach (ms).",
   "FluentWheel.Settings.ZoomEasingMode": "Tryb wygładzania animacji powiększenia",
   "FluentWheel.Settings.ZoomEasingMode.Description": "Tryb wygładzania animacji powiększenia.",
+  "FluentWheel.Settings.EnableLowLevelMouseHook": "Włącz niskopoziomowy hak myszy",
+  "FluentWheel.Settings.EnableLowLevelMouseHook.Description": "Spróbuj włączyć tę opcję, jeśli przewijanie lub powiększanie wydaje się opóźnione. Częściej zdarza się to w edytorach o złożonym układzie lub przy włączonym sticky scroll.",
 
   "FluentWheel.EasingMode.Linear": "Liniowy",
   "FluentWheel.EasingMode.EaseIn": "Łagodne wejście",

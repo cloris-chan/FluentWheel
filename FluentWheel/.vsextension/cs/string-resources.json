@@ -12,6 +12,8 @@
   "FluentWheel.Settings.ZoomDuration.Description": "Doba trvání animace přiblížení v milisekundách (ms).",
   "FluentWheel.Settings.ZoomEasingMode": "Režim animace přiblížení",
   "FluentWheel.Settings.ZoomEasingMode.Description": "Režim přechodu animace přiblížení.",
+  "FluentWheel.Settings.EnableLowLevelMouseHook": "Povolit nízkoúrovňový hák myši",
+  "FluentWheel.Settings.EnableLowLevelMouseHook.Description": "Pokud se posouvání nebo přiblížení zdá opožděné, zkuste tuto možnost zapnout. Častější je to v editorech se složitým rozložením nebo při zapnutém sticky scroll.",
 
   "FluentWheel.EasingMode.Linear": "Lineární",
   "FluentWheel.EasingMode.EaseIn": "Plynulý vstup",

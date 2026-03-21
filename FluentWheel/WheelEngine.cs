@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.Text.Editor;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -13,6 +14,8 @@ internal static class WheelEngine
 {
     private static readonly ConcurrentQueue<IWpfTextView> _pendingViews = [];
     private static readonly HashSet<TextViewAnimationState> _activeAnimationStates = [];
+    private static readonly HashSet<TextViewAnimationState> _registeredAnimationStates = [];
+    private static readonly ConcurrentQueue<LowLevelMouseHook.MouseWheelInput> _pendingLowLevelMouseWheelInputs = [];
 
     public static bool IsInitialized { get; private set; }
 
@@ -28,7 +31,12 @@ internal static class WheelEngine
             RegisterViewInternal(view);
         }
 
+        LowLevelMouseHook.MouseWheelInputReceived += _pendingLowLevelMouseWheelInputs.Enqueue;
+        SettingsCache.SettingsChanged += SettingsChanged;
         CompositionTarget.Rendering += FrameRendering;
+
+        SettingsChanged(nameof(SettingsCache.EnableLowLevelMouseHook));
+
         IsInitialized = true;
     }
 
@@ -68,32 +76,82 @@ internal static class WheelEngine
                 .Single(field => typeof(IViewScroller).IsAssignableFrom(field.FieldType));
 
             var animationState = new TextViewAnimationState(view);
+            _registeredAnimationStates.Add(animationState);
             innerViewScrollField.SetValue(view, animationState.ViewScroller);
+            view.Closed += delegate
+            {
+                _registeredAnimationStates.Remove(animationState);
+                _activeAnimationStates.Remove(animationState);
+            };
             HookWindowMessages(animationState);
         }
         catch (InvalidOperationException) { }
     }
 
+    private static void SettingsChanged(string propertyName)
+    {
+        if (propertyName is nameof(SettingsCache.EnableLowLevelMouseHook))
+        {
+            if (SettingsCache.EnableLowLevelMouseHook)
+            {
+                _ = LowLevelMouseHook.EnableAsync();
+            }
+            else
+            {
+                _ = LowLevelMouseHook.DisableAsync();
+            }
+        }
+    }
+
     private static void HookWindowMessages(TextViewAnimationState animationState)
     {
         const int WM_MOUSEWHEEL = 0x020A;
+        const int WM_MOUSEHWHEEL = 0x020E;
         const int MK_CONTROL = 0x0008;
+        const int MK_SHIFT = 0x0004;
 
         HwndSource? currentSource = null;
 
         nint Hook(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
         {
-            if (msg == WM_MOUSEWHEEL
-                && (wParam & MK_CONTROL) == MK_CONTROL
-                && animationState.CanAnimate
-                && VisualTreeHelper.HitTest(animationState.View.VisualElement, Mouse.GetPosition(animationState.View.VisualElement)) is not null)
+            if (msg != WM_MOUSEWHEEL && msg != WM_MOUSEHWHEEL)
             {
-                var delta = (int)wParam >> 16;
+                return default;
+            }
+
+            if (!IsMouseOverHost(animationState))
+            {
+                return default;
+            }
+
+
+            if (LowLevelMouseHook.IsEnabled)
+            {
+                handled = true;
+                return default;
+            }
+
+            var delta = (int)wParam >> 16;
+            if (msg == WM_MOUSEWHEEL && (wParam & MK_CONTROL) == MK_CONTROL)
+            {
                 var scale = delta > 0 ? delta / 1200.0 : delta / 1320.0;
                 animationState.ZoomAnimation.Zoom(animationState.View.ZoomLevel, scale, Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt));
-                _activeAnimationStates.Add(animationState);
-                handled = true;
             }
+            else if (msg == WM_MOUSEHWHEEL)
+            {
+                animationState.HorizontalScrollAnimation.Scroll(GetScrollDistance(animationState, delta));
+            }
+            else if ((wParam & MK_SHIFT) == MK_SHIFT)
+            {
+                animationState.HorizontalScrollAnimation.Scroll(-GetScrollDistance(animationState, delta));
+            }
+            else
+            {
+                animationState.VerticalScrollAnimation.Scroll(GetScrollDistance(animationState, delta));
+            }
+
+            _activeAnimationStates.Add(animationState);
+            handled = true;
 
             return default;
         }
@@ -147,6 +205,7 @@ internal static class WheelEngine
 
     private static void FrameRendering(object sender, EventArgs e)
     {
+        ProcessPendingLowLevelMouseWheelInputs();
         _activeAnimationStates.RemoveWhere(animationState => !animationState.IsAnimating || animationState.View.IsClosed);
 
         foreach (var animationState in _activeAnimationStates)
@@ -197,7 +256,76 @@ internal static class WheelEngine
     public static void Cleanup()
     {
         CompositionTarget.Rendering -= FrameRendering;
+        SettingsCache.SettingsChanged -= SettingsChanged;
+        LowLevelMouseHook.MouseWheelInputReceived -= _pendingLowLevelMouseWheelInputs.Enqueue;
+        _ = LowLevelMouseHook.DisableAsync();
+
         _activeAnimationStates.Clear();
+        _registeredAnimationStates.Clear();
+        while (_pendingLowLevelMouseWheelInputs.TryDequeue(out _))
+        {
+        }
+
         IsInitialized = false;
+    }
+
+    private static void ProcessPendingLowLevelMouseWheelInputs()
+    {
+        while (_pendingLowLevelMouseWheelInputs.TryDequeue(out var input))
+        {
+            if (!TryGetHoveredAnimationState(out var animationState))
+            {
+                continue;
+            }
+
+            if (input is { IsControlPressed: true, IsHorizontal: false })
+            {
+                var scale = input.Delta > 0 ? input.Delta / 1200.0 : input.Delta / 1320.0;
+                animationState.ZoomAnimation.Zoom(animationState.View.ZoomLevel, scale, input.IsAltPressed);
+            }
+            else if (input.IsHorizontal)
+            {
+                animationState.HorizontalScrollAnimation.Scroll(GetScrollDistance(animationState, input.Delta));
+            }
+            else if (input.IsShiftPressed)
+            {
+                animationState.HorizontalScrollAnimation.Scroll(-GetScrollDistance(animationState, input.Delta));
+            }
+            else
+            {
+                animationState.VerticalScrollAnimation.Scroll(GetScrollDistance(animationState, input.Delta));
+            }
+
+            _activeAnimationStates.Add(animationState);
+        }
+    }
+
+    private static bool TryGetHoveredAnimationState(out TextViewAnimationState animationState)
+    {
+        foreach (var state in _registeredAnimationStates)
+        {
+            if (IsMouseOverHost(state))
+            {
+                animationState = state;
+                return true;
+            }
+        }
+
+        animationState = null!;
+        return false;
+    }
+
+    private static bool IsMouseOverHost(TextViewAnimationState animationState)
+    {
+        return animationState is { View.IsClosed: false, Host.HostControl.IsMouseOver: true };
+    }
+
+    private static double GetScrollDistance(TextViewAnimationState animationState, int delta)
+    {
+        const double WheelDelta = 120.0;
+        var baseDistance = SystemParameters.WheelScrollLines > 0
+            ? delta / WheelDelta * animationState.View.LineHeight * SystemParameters.WheelScrollLines
+            : delta / WheelDelta * animationState.View.LineHeight * 3;
+        return baseDistance * SettingsCache.VerticalScrollRate / 100.0;
     }
 }

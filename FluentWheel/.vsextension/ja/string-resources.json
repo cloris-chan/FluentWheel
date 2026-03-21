@@ -12,6 +12,8 @@
   "FluentWheel.Settings.ZoomDuration.Description": "ズームアニメーションの長さ (ミリ秒)。",
   "FluentWheel.Settings.ZoomEasingMode": "ズームアニメーションのイージングモード",
   "FluentWheel.Settings.ZoomEasingMode.Description": "ズームアニメーションのイージングモード。",
+  "FluentWheel.Settings.EnableLowLevelMouseHook": "低レベルマウスフックを有効化",
+  "FluentWheel.Settings.EnableLowLevelMouseHook.Description": "スクロールやズームに遅延を感じる場合は、有効化を試してください。複雑なレイアウトのエディターや sticky scroll が有効な場合に起こりやすくなります。",
 
   "FluentWheel.EasingMode.Linear": "線形",
   "FluentWheel.EasingMode.EaseIn": "イーズイン",

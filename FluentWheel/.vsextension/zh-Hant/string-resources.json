@@ -12,6 +12,8 @@
   "FluentWheel.Settings.ZoomDuration.Description": "縮放動畫的持續時間（毫秒）。",
   "FluentWheel.Settings.ZoomEasingMode": "縮放動畫緩動模式",
   "FluentWheel.Settings.ZoomEasingMode.Description": "縮放動畫的緩動模式。",
+  "FluentWheel.Settings.EnableLowLevelMouseHook": "啟用低階滑鼠鉤子",
+  "FluentWheel.Settings.EnableLowLevelMouseHook.Description": "如果感覺捲動或縮放有遲滯，可以嘗試開啟。這常見於複雜版面的編輯器或開啟了 sticky scroll 時。",
 
   "FluentWheel.EasingMode.Linear": "線性",
   "FluentWheel.EasingMode.EaseIn": "漸入",

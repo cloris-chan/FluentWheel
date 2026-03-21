@@ -2,6 +2,7 @@
 using Cloris.FluentWheel.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.Extensibility;
+using System.Runtime.CompilerServices;
 
 namespace Cloris.FluentWheel;
 
@@ -9,19 +10,23 @@ internal static class SettingsCache
 {
     private static SettingsCategoryObserver? _settingsCategoryObserver;
 
+    public static event Action<string>? SettingsChanged;
+
     public static bool IsInitialized { get; private set; }
 
-    public static int ScrollDuration { get; private set; }
+    public static int ScrollDuration { get => field; private set => SetProperty(ref field, value); }
 
-    public static EasingMode ScrollEasingMode { get; private set; }
+    public static EasingMode ScrollEasingMode { get => field; private set => SetProperty(ref field, value); }
 
-    public static int VerticalScrollRate { get; private set; }
+    public static int VerticalScrollRate { get => field; private set => SetProperty(ref field, value); }
 
-    public static int HorizontalScrollRate { get; private set; }
+    public static int HorizontalScrollRate { get => field; private set => SetProperty(ref field, value); }
 
-    public static int ZoomDuration { get; private set; }
+    public static bool EnableLowLevelMouseHook { get => field; private set => SetProperty(ref field, value); }
 
-    public static EasingMode ZoomEasingMode { get; private set; }
+    public static int ZoomDuration { get => field; private set => SetProperty(ref field, value); }
+
+    public static EasingMode ZoomEasingMode { get => field; private set => SetProperty(ref field, value); }
 
     public static async Task InitializeAsync(VisualStudioExtensibility extensibility, IServiceProvider serviceProvider, CancellationToken cancellationToken)
     {
@@ -35,13 +40,15 @@ internal static class SettingsCache
             SettingsDefinition.VerticalScrollRateSetting,
             SettingsDefinition.HorizontalScrollRateSetting,
             SettingsDefinition.ZoomDurationSetting,
-            SettingsDefinition.ZoomEasingModeSetting
+            SettingsDefinition.ZoomEasingModeSetting,
+            SettingsDefinition.EnableLowLevelMouseHookSetting
         ], cancellationToken);
 
         ScrollDuration = settings.ValueOrDefault(SettingsDefinition.ScrollDurationSetting, SettingsDefinition.ScrollDurationSetting.DefaultValue);
         ScrollEasingMode = (EasingMode)Enum.Parse(typeof(EasingMode), settings.ValueOrDefault(SettingsDefinition.ScrollEasingModeSetting, SettingsDefinition.ScrollEasingModeSetting.DefaultValue));
         VerticalScrollRate = settings.ValueOrDefault(SettingsDefinition.VerticalScrollRateSetting, SettingsDefinition.VerticalScrollRateSetting.DefaultValue);
         HorizontalScrollRate = settings.ValueOrDefault(SettingsDefinition.HorizontalScrollRateSetting, SettingsDefinition.HorizontalScrollRateSetting.DefaultValue);
+        EnableLowLevelMouseHook = settings.ValueOrDefault(SettingsDefinition.EnableLowLevelMouseHookSetting, SettingsDefinition.EnableLowLevelMouseHookSetting.DefaultValue);
         ZoomDuration = settings.ValueOrDefault(SettingsDefinition.ZoomDurationSetting, SettingsDefinition.ZoomDurationSetting.DefaultValue);
         ZoomEasingMode = (EasingMode)Enum.Parse(typeof(EasingMode), settings.ValueOrDefault(SettingsDefinition.ZoomEasingModeSetting, SettingsDefinition.ZoomEasingModeSetting.DefaultValue));
 
@@ -54,6 +61,7 @@ internal static class SettingsCache
         ScrollEasingMode = (EasingMode)Enum.Parse(typeof(EasingMode), arg.ScrollEasingModeSetting.ValueOrDefault(SettingsDefinition.ScrollEasingModeSetting.DefaultValue));
         VerticalScrollRate = arg.VerticalScrollRateSetting.ValueOrDefault(SettingsDefinition.VerticalScrollRateSetting.DefaultValue);
         HorizontalScrollRate = arg.HorizontalScrollRateSetting.ValueOrDefault(SettingsDefinition.HorizontalScrollRateSetting.DefaultValue);
+        EnableLowLevelMouseHook = arg.EnableLowLevelMouseHookSetting.ValueOrDefault(SettingsDefinition.EnableLowLevelMouseHookSetting.DefaultValue);
         ZoomDuration = arg.ZoomDurationSetting.ValueOrDefault(SettingsDefinition.ZoomDurationSetting.DefaultValue);
         ZoomEasingMode = (EasingMode)Enum.Parse(typeof(EasingMode), arg.ZoomEasingModeSetting.ValueOrDefault(SettingsDefinition.ZoomEasingModeSetting.DefaultValue));
 
@@ -70,5 +78,14 @@ internal static class SettingsCache
         }
 
         IsInitialized = false;
+    }
+
+    private static void SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null!)
+    {
+        if (!EqualityComparer<T>.Default.Equals(field, value))
+        {
+            field = value;
+            SettingsChanged?.Invoke(propertyName);
+        }
     }
 }

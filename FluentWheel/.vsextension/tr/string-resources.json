@@ -12,6 +12,8 @@
   "FluentWheel.Settings.ZoomDuration.Description": "Yakınlaştırma animasyonunun milisaniye (ms) cinsinden süresi.",
   "FluentWheel.Settings.ZoomEasingMode": "Yakınlaştırma animasyonu yumuşatma modu",
   "FluentWheel.Settings.ZoomEasingMode.Description": "Yakınlaştırma animasyonunun yumuşatma modu.",
+  "FluentWheel.Settings.EnableLowLevelMouseHook": "Düşük düzey fare kancasını etkinleştir",
+  "FluentWheel.Settings.EnableLowLevelMouseHook.Description": "Kaydırma veya yakınlaştırma gecikmeli geliyorsa bunu etkinleştirmeyi deneyin. Bu durum, karmaşık düzenlere sahip düzenleyicilerde veya sticky scroll açıkken daha yaygındır.",
 
   "FluentWheel.EasingMode.Linear": "Doğrusal",
   "FluentWheel.EasingMode.EaseIn": "Yavaş başlangıç",
