@@ -3,7 +3,6 @@ using Microsoft.VisualStudio.Text.Editor;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -54,16 +53,19 @@ internal static class WheelEngine
 
     private static void RegisterViewInternal(IWpfTextView view)
     {
-        if (view.VisualElement.IsInitialized)
+        if (view.VisualElement.IsLoaded)
         {
             InitializeViewComponents(view);
         }
         else
         {
-            view.VisualElement.Initialized += delegate
+            view.VisualElement.Loaded += VisualElement_Loaded;
+
+            void VisualElement_Loaded(object sender, RoutedEventArgs e)
             {
+                view.VisualElement.Loaded -= VisualElement_Loaded;
                 InitializeViewComponents(view);
-            };
+            }
         }
     }
 
@@ -132,7 +134,7 @@ internal static class WheelEngine
             }
 
             var delta = (int)wParam >> 16;
-            if (msg == WM_MOUSEWHEEL && (wParam & MK_CONTROL) == MK_CONTROL)
+            if (msg == WM_MOUSEWHEEL && (wParam & MK_CONTROL) == MK_CONTROL && animationState.CanZoom)
             {
                 var scale = delta > 0 ? delta / 1200.0 : delta / 1320.0;
                 animationState.ZoomAnimation.Zoom(animationState.View.ZoomLevel, scale, Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt));
@@ -278,7 +280,7 @@ internal static class WheelEngine
                 continue;
             }
 
-            if (input is { IsControlPressed: true, IsHorizontal: false })
+            if (input is { IsControlPressed: true, IsHorizontal: false } && animationState.CanZoom)
             {
                 var scale = input.Delta > 0 ? input.Delta / 1200.0 : input.Delta / 1320.0;
                 animationState.ZoomAnimation.Zoom(animationState.View.ZoomLevel, scale, input.IsAltPressed);
