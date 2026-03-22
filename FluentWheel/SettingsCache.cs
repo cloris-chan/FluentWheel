@@ -2,6 +2,7 @@
 using Cloris.FluentWheel.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.Extensibility;
+using Microsoft.VisualStudio.Extensibility.Settings;
 using System.Runtime.CompilerServices;
 
 namespace Cloris.FluentWheel;
@@ -9,6 +10,7 @@ namespace Cloris.FluentWheel;
 internal static class SettingsCache
 {
     private static SettingsCategoryObserver? _settingsCategoryObserver;
+    private static IDisposable? _externalSettingsSubscription;
 
     public static event Action<string>? SettingsChanged;
 
@@ -28,12 +30,20 @@ internal static class SettingsCache
 
     public static EasingMode ZoomEasingMode { get => field; private set => SetProperty(ref field, value); }
 
+    public static int LinesPerVerticalScroll { get => field; private set => SetProperty(ref field, value); } = 3;
+
+    public static int CharsPerHorizontalScroll { get => field; private set => SetProperty(ref field, value); } = 10;
+
+    public static double FastScrollMultiplier { get => field; private set => SetProperty(ref field, value); } = 5.0;
+
     public static async Task InitializeAsync(VisualStudioExtensibility extensibility, IServiceProvider serviceProvider, CancellationToken cancellationToken)
     {
         _settingsCategoryObserver = serviceProvider.GetRequiredService<SettingsCategoryObserver>();
         _settingsCategoryObserver.Changed += SettingsChangedAsync;
 
-        var settings = await extensibility.Settings().ReadEffectiveValuesAsync(
+        var settings = extensibility.Settings();
+
+        var settingValues = await settings.ReadEffectiveValuesAsync(
         [
             SettingsDefinition.ScrollDurationSetting,
             SettingsDefinition.ScrollEasingModeSetting,
@@ -44,14 +54,15 @@ internal static class SettingsCache
             SettingsDefinition.EnableLowLevelMouseHookSetting
         ], cancellationToken);
 
-        ScrollDuration = settings.ValueOrDefault(SettingsDefinition.ScrollDurationSetting, SettingsDefinition.ScrollDurationSetting.DefaultValue);
-        ScrollEasingMode = (EasingMode)Enum.Parse(typeof(EasingMode), settings.ValueOrDefault(SettingsDefinition.ScrollEasingModeSetting, SettingsDefinition.ScrollEasingModeSetting.DefaultValue));
-        VerticalScrollRate = settings.ValueOrDefault(SettingsDefinition.VerticalScrollRateSetting, SettingsDefinition.VerticalScrollRateSetting.DefaultValue);
-        HorizontalScrollRate = settings.ValueOrDefault(SettingsDefinition.HorizontalScrollRateSetting, SettingsDefinition.HorizontalScrollRateSetting.DefaultValue);
-        EnableLowLevelMouseHook = settings.ValueOrDefault(SettingsDefinition.EnableLowLevelMouseHookSetting, SettingsDefinition.EnableLowLevelMouseHookSetting.DefaultValue);
-        ZoomDuration = settings.ValueOrDefault(SettingsDefinition.ZoomDurationSetting, SettingsDefinition.ZoomDurationSetting.DefaultValue);
-        ZoomEasingMode = (EasingMode)Enum.Parse(typeof(EasingMode), settings.ValueOrDefault(SettingsDefinition.ZoomEasingModeSetting, SettingsDefinition.ZoomEasingModeSetting.DefaultValue));
+        ScrollDuration = settingValues.ValueOrDefault(SettingsDefinition.ScrollDurationSetting, SettingsDefinition.ScrollDurationSetting.DefaultValue);
+        ScrollEasingMode = (EasingMode)Enum.Parse(typeof(EasingMode), settingValues.ValueOrDefault(SettingsDefinition.ScrollEasingModeSetting, SettingsDefinition.ScrollEasingModeSetting.DefaultValue));
+        VerticalScrollRate = settingValues.ValueOrDefault(SettingsDefinition.VerticalScrollRateSetting, SettingsDefinition.VerticalScrollRateSetting.DefaultValue);
+        HorizontalScrollRate = settingValues.ValueOrDefault(SettingsDefinition.HorizontalScrollRateSetting, SettingsDefinition.HorizontalScrollRateSetting.DefaultValue);
+        EnableLowLevelMouseHook = settingValues.ValueOrDefault(SettingsDefinition.EnableLowLevelMouseHookSetting, SettingsDefinition.EnableLowLevelMouseHookSetting.DefaultValue);
+        ZoomDuration = settingValues.ValueOrDefault(SettingsDefinition.ZoomDurationSetting, SettingsDefinition.ZoomDurationSetting.DefaultValue);
+        ZoomEasingMode = (EasingMode)Enum.Parse(typeof(EasingMode), settingValues.ValueOrDefault(SettingsDefinition.ZoomEasingModeSetting, SettingsDefinition.ZoomEasingModeSetting.DefaultValue));
 
+        await LoadExternalSettingsAsync(settings, cancellationToken);
         IsInitialized = true;
     }
 
@@ -68,6 +79,38 @@ internal static class SettingsCache
         return Task.CompletedTask;
     }
 
+    private static async Task LoadExternalSettingsAsync(SettingsExtensibility settings, CancellationToken cancellationToken)
+    {
+        var linesPerVerticalScrollSetting = SettingIdentifier.Custom("textEditor.advanced.scrolling.linesPerVerticalScroll");
+        var charsPerHorizontalScrollSetting = SettingIdentifier.Custom("textEditor.advanced.scrolling.charsPerHorizontalScroll");
+        var fastScrollMultiplierSetting = SettingIdentifier.Custom("textEditor.advanced.scrolling.fastScrollMultiplier");
+
+        _externalSettingsSubscription = await settings.SubscribeAsync([linesPerVerticalScrollSetting, charsPerHorizontalScrollSetting, fastScrollMultiplierSetting], cancellationToken, ReadExternalSettings);
+
+        void ReadExternalSettings(SettingValues? values)
+        {
+            if (values is null)
+            {
+                return;
+            }
+
+            if (values.TryGetValue(linesPerVerticalScrollSetting, out var settingValue) && settingValue is SettingValue<int> linesPerVerticalScrollValue)
+            {
+                LinesPerVerticalScroll = linesPerVerticalScrollValue.Value;
+            }
+
+            if (values.TryGetValue(charsPerHorizontalScrollSetting, out settingValue) && settingValue is SettingValue<int> charsPerHorizontalScrollValue)
+            {
+                CharsPerHorizontalScroll = charsPerHorizontalScrollValue.Value;
+            }
+
+            if (values.TryGetValue(fastScrollMultiplierSetting, out settingValue) && settingValue is SettingValue<decimal> fastScrollMultiplierValue)
+            {
+                FastScrollMultiplier = (double)fastScrollMultiplierValue.Value;
+            }
+        }
+    }
+
     public static void Cleanup()
     {
         if (_settingsCategoryObserver is not null)
@@ -76,6 +119,9 @@ internal static class SettingsCache
             _settingsCategoryObserver.Dispose();
             _settingsCategoryObserver = null;
         }
+
+        _externalSettingsSubscription?.Dispose();
+        _externalSettingsSubscription = null;
 
         IsInitialized = false;
     }

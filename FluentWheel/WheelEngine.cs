@@ -141,15 +141,15 @@ internal static class WheelEngine
             }
             else if (msg == WM_MOUSEHWHEEL)
             {
-                animationState.HorizontalScrollAnimation.Scroll(GetScrollDistance(animationState, delta));
+                animationState.HorizontalScrollAnimation.Scroll(GetHorizontalScrollDistance(animationState, delta));
             }
             else if ((wParam & MK_SHIFT) == MK_SHIFT)
             {
-                animationState.HorizontalScrollAnimation.Scroll(-GetScrollDistance(animationState, delta));
+                animationState.HorizontalScrollAnimation.Scroll(-GetHorizontalScrollDistance(animationState, delta));
             }
             else
             {
-                animationState.VerticalScrollAnimation.Scroll(GetScrollDistance(animationState, delta));
+                animationState.VerticalScrollAnimation.Scroll(GetVertialScrollDistance(animationState, delta));
             }
 
             _activeAnimationStates.Add(animationState);
@@ -287,15 +287,15 @@ internal static class WheelEngine
             }
             else if (input.IsHorizontal)
             {
-                animationState.HorizontalScrollAnimation.Scroll(GetScrollDistance(animationState, input.Delta));
+                animationState.HorizontalScrollAnimation.Scroll(GetHorizontalScrollDistance(animationState, input.Delta));
             }
             else if (input.IsShiftPressed)
             {
-                animationState.HorizontalScrollAnimation.Scroll(-GetScrollDistance(animationState, input.Delta));
+                animationState.HorizontalScrollAnimation.Scroll(-GetHorizontalScrollDistance(animationState, input.Delta));
             }
             else
             {
-                animationState.VerticalScrollAnimation.Scroll(GetScrollDistance(animationState, input.Delta));
+                animationState.VerticalScrollAnimation.Scroll(GetVertialScrollDistance(animationState, input.Delta));
             }
 
             _activeAnimationStates.Add(animationState);
@@ -322,12 +322,27 @@ internal static class WheelEngine
         return animationState is { View.IsClosed: false, Host.HostControl.IsMouseOver: true };
     }
 
-    private static double GetScrollDistance(TextViewAnimationState animationState, int delta)
+    private static double GetVertialScrollDistance(TextViewAnimationState animationState, int delta)
     {
-        const double WheelDelta = 120.0;
-        var baseDistance = SystemParameters.WheelScrollLines > 0
-            ? delta / WheelDelta * animationState.View.LineHeight * SystemParameters.WheelScrollLines
-            : delta / WheelDelta * animationState.View.LineHeight * 3;
-        return baseDistance * SettingsCache.VerticalScrollRate / 100.0;
+        var distance = delta * SettingsCache.VerticalScrollRate / 12000.0 * animationState.View.LineHeight * SettingsCache.LinesPerVerticalScroll;
+
+        if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
+        {
+            distance *= SettingsCache.FastScrollMultiplier;
+        }
+
+        return distance;
+    }
+
+    private static double GetHorizontalScrollDistance(TextViewAnimationState animationState, int delta)
+    {
+        var distance = delta * SettingsCache.HorizontalScrollRate / 12000.0 * animationState.View.FormattedLineSource.ColumnWidth * SettingsCache.CharsPerHorizontalScroll;
+
+        if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
+        {
+            distance *= SettingsCache.FastScrollMultiplier;
+        }
+
+        return distance;
     }
 }
