@@ -20,17 +20,16 @@ internal static class LowLevelMouseHook
     {
         await Task.Yield();
 
-        if (_state is not null)
-        {
-            return;
-        }
-
         using var started = new ManualResetEventSlim();
         Exception? startupException = null;
         HookState state;
 
         lock (HookState.LockObject)
         {
+            if (_state is not null)
+            {
+                return;
+            }
 
             state = new();
             var thread = new Thread(ThreadMain)
@@ -89,13 +88,14 @@ internal static class LowLevelMouseHook
     {
         await Task.Yield();
 
-        if (_state is null)
-        {
-            return;
-        }
 
         lock (HookState.LockObject)
         {
+            if (_state is null)
+            {
+                return;
+            }
+
             if (_state.ThreadId != 0)
             {
                 PInvoke.PostThreadMessage(_state.ThreadId, PInvoke.WM_QUIT, 0, 0);
