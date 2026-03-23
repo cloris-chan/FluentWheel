@@ -118,7 +118,14 @@ internal static class LowLevelMouseHook
 
                 if (delta != 0)
                 {
-                    MouseWheelInputReceived?.Invoke(new(delta, message == PInvoke.WM_MOUSEHWHEEL, IsKeyPressed(VIRTUAL_KEY.VK_SHIFT), IsKeyPressed(VIRTUAL_KEY.VK_CONTROL), IsKeyPressed(VIRTUAL_KEY.VK_MENU)));
+                    MouseWheelInputReceived?.Invoke(new()
+                    {
+                        Delta = delta,
+                        IsHorizontal = message == PInvoke.WM_MOUSEHWHEEL,
+                        IsShiftPressed = IsKeyPressed(VIRTUAL_KEY.VK_SHIFT),
+                        IsControlPressed = IsKeyPressed(VIRTUAL_KEY.VK_CONTROL),
+                        IsAltPressed = IsKeyPressed(VIRTUAL_KEY.VK_MENU)
+                    });
                 }
             }
         }
@@ -131,7 +138,14 @@ internal static class LowLevelMouseHook
         return (PInvoke.GetAsyncKeyState((int)virtualKey) & 0x8000) != 0;
     }
 
-    internal readonly record struct MouseWheelInput(short Delta, bool IsHorizontal, bool IsShiftPressed, bool IsControlPressed, bool IsAltPressed);
+    public struct MouseWheelInput
+    {
+        public short Delta;
+        public bool IsHorizontal;
+        public bool IsShiftPressed;
+        public bool IsControlPressed;
+        public bool IsAltPressed;
+    }
 
     private sealed class HookState
     {
