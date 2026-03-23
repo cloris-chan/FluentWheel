@@ -41,7 +41,7 @@ internal static class WheelEngine
 
     public static void RegisterView(IWpfTextView view)
     {
-        if (SettingsCache.IsInitialized)
+        if (IsInitialized)
         {
             RegisterViewInternal(view);
         }

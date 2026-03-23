@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.Extensibility;
 
 namespace Cloris.FluentWheel;
@@ -11,15 +10,9 @@ internal sealed class FluentWheelExtension : Extension
         RequiresInProcessHosting = true,
     };
 
-    protected override void InitializeServices(IServiceCollection serviceCollection)
-    {
-        serviceCollection.AddSettingsObservers();
-        base.InitializeServices(serviceCollection);
-    }
-
     protected override async Task OnInitializedAsync(VisualStudioExtensibility extensibility, CancellationToken cancellationToken)
     {
-        await SettingsCache.InitializeAsync(extensibility, ServiceProvider, cancellationToken);
+        await SettingsCache.InitializeAsync(extensibility, cancellationToken);
         await WheelEngine.InitializeAsync();
         await base.OnInitializedAsync(extensibility, cancellationToken);
     }
@@ -33,10 +26,7 @@ internal sealed class FluentWheelExtension : Extension
                 WheelEngine.Cleanup();
             }
 
-            if (SettingsCache.IsInitialized)
-            {
-                SettingsCache.Cleanup();
-            }
+            SettingsCache.Cleanup();
         }
 
         base.Dispose(disposing);

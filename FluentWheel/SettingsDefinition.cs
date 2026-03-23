@@ -15,7 +15,7 @@ internal static class SettingsDefinition
     ];
 
     [VisualStudioContribution]
-    internal static SettingCategory SettingsCategory { get; } = new("fluentWheel", "%FluentWheel.Settings.Category%") { GenerateObserverClass = true };
+    internal static SettingCategory SettingsCategory { get; } = new("fluentWheel", "%FluentWheel.Settings.Category%");
 
     [VisualStudioContribution]
     internal static Setting.Integer ScrollDurationSetting { get; } = new("scrollDuration", "%FluentWheel.Settings.ScrollDuration%", SettingsCategory, 200) { Description = "%FluentWheel.Settings.ScrollDuration.Description%", Minimum = 0, Maximum = 1000 };
