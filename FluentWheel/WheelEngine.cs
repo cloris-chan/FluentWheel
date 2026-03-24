@@ -149,7 +149,7 @@ internal static class WheelEngine
             }
             else
             {
-                animationState.VerticalScrollAnimation.Scroll(GetVertialScrollDistance(animationState, delta));
+                animationState.VerticalScrollAnimation.Scroll(GetVerticalScrollDistance(animationState, delta));
             }
 
             _activeAnimationStates.Add(animationState);
@@ -295,7 +295,7 @@ internal static class WheelEngine
             }
             else
             {
-                animationState.VerticalScrollAnimation.Scroll(GetVertialScrollDistance(animationState, input.Delta));
+                animationState.VerticalScrollAnimation.Scroll(GetVerticalScrollDistance(animationState, input.Delta));
             }
 
             _activeAnimationStates.Add(animationState);
@@ -322,7 +322,7 @@ internal static class WheelEngine
         return animationState is { View.IsClosed: false, Host.HostControl.IsMouseOver: true };
     }
 
-    private static double GetVertialScrollDistance(TextViewAnimationState animationState, int delta)
+    private static double GetVerticalScrollDistance(TextViewAnimationState animationState, int delta)
     {
         var distance = delta * SettingsCache.VerticalScrollRate / 12000.0 * animationState.View.LineHeight * SettingsCache.LinesPerVerticalScroll;
 
