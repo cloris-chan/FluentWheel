@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.Extensibility;
 
 namespace Cloris.FluentWheel;
@@ -12,6 +14,7 @@ internal sealed class FluentWheelExtension : Extension
 
     protected override async Task OnInitializedAsync(VisualStudioExtensibility extensibility, CancellationToken cancellationToken)
     {
+        ExtensionDiagnostics.Initialize(ServiceProvider.GetRequiredService<TraceSource>());
         await SettingsCache.InitializeAsync(extensibility, cancellationToken);
         await WheelEngine.InitializeAsync();
         await base.OnInitializedAsync(extensibility, cancellationToken);
@@ -27,6 +30,7 @@ internal sealed class FluentWheelExtension : Extension
             }
 
             SettingsCache.Cleanup();
+            ExtensionDiagnostics.Cleanup();
         }
 
         base.Dispose(disposing);

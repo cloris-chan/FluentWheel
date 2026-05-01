@@ -108,26 +108,33 @@ internal static class LowLevelMouseHook
 
     private static LRESULT HookCallback(int code, WPARAM wParam, LPARAM lParam)
     {
-        if (code == (int)PInvoke.HC_ACTION)
+        try
         {
-            var message = unchecked((uint)wParam.Value);
-            if (message is PInvoke.WM_MOUSEWHEEL or PInvoke.WM_MOUSEHWHEEL)
+            if (code == (int)PInvoke.HC_ACTION)
             {
-                var mouseData = Marshal.PtrToStructure<MSLLHOOKSTRUCT>(lParam.Value).mouseData;
-                var delta = (short)(mouseData >> 16);
-
-                if (delta != 0)
+                var message = unchecked((uint)wParam.Value);
+                if (message is PInvoke.WM_MOUSEWHEEL or PInvoke.WM_MOUSEHWHEEL)
                 {
-                    MouseWheelInputReceived?.Invoke(new()
+                    var mouseData = Marshal.PtrToStructure<MSLLHOOKSTRUCT>(lParam.Value).mouseData;
+                    var delta = (short)(mouseData >> 16);
+
+                    if (delta != 0)
                     {
-                        Delta = delta,
-                        IsHorizontal = message == PInvoke.WM_MOUSEHWHEEL,
-                        IsShiftPressed = IsKeyPressed(VIRTUAL_KEY.VK_SHIFT),
-                        IsControlPressed = IsKeyPressed(VIRTUAL_KEY.VK_CONTROL),
-                        IsAltPressed = IsKeyPressed(VIRTUAL_KEY.VK_MENU)
-                    });
+                        MouseWheelInputReceived?.Invoke(new()
+                        {
+                            Delta = delta,
+                            IsHorizontal = message == PInvoke.WM_MOUSEHWHEEL,
+                            IsShiftPressed = IsKeyPressed(VIRTUAL_KEY.VK_SHIFT),
+                            IsControlPressed = IsKeyPressed(VIRTUAL_KEY.VK_CONTROL),
+                            IsAltPressed = IsKeyPressed(VIRTUAL_KEY.VK_MENU)
+                        });
+                    }
                 }
             }
+        }
+        catch (Exception ex)
+        {
+            ExtensionDiagnostics.TraceException("LowLevelMouseHook.HookCallback", ex);
         }
 
         return PInvoke.CallNextHookEx(_state?.HookHandle ?? default, code, wParam, lParam);

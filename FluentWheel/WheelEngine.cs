@@ -1,11 +1,11 @@
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Text.Editor;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Text.Editor;
 
 namespace Cloris.FluentWheel;
 
@@ -88,6 +88,10 @@ internal static class WheelEngine
             HookWindowMessages(animationState);
         }
         catch (InvalidOperationException) { }
+        catch (Exception ex)
+        {
+            ExtensionDiagnostics.TraceException("InitializeViewComponents", ex);
+        }
     }
 
     private static void SettingsChanged(string propertyName)
@@ -116,44 +120,51 @@ internal static class WheelEngine
 
         nint Hook(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
         {
-            if (msg != WM_MOUSEWHEEL && msg != WM_MOUSEHWHEEL)
+            try
             {
-                return default;
-            }
+                if (msg != WM_MOUSEWHEEL && msg != WM_MOUSEHWHEEL)
+                {
+                    return default;
+                }
 
-            if (!IsMouseOverHost(animationState))
-            {
-                return default;
-            }
+                if (!IsMouseOverHost(animationState))
+                {
+                    return default;
+                }
 
 
-            if (LowLevelMouseHook.IsEnabled)
-            {
+                if (LowLevelMouseHook.IsEnabled)
+                {
+                    handled = true;
+                    return default;
+                }
+
+                var delta = (int)wParam >> 16;
+                if (msg == WM_MOUSEWHEEL && (wParam & MK_CONTROL) == MK_CONTROL && animationState.CanZoom)
+                {
+                    var scale = delta > 0 ? delta / 1200.0 : delta / 1320.0;
+                    animationState.ZoomAnimation.Zoom(animationState.View.ZoomLevel, scale, Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt));
+                }
+                else if (msg == WM_MOUSEHWHEEL)
+                {
+                    animationState.HorizontalScrollAnimation.Scroll(GetHorizontalScrollDistance(animationState, delta));
+                }
+                else if ((wParam & MK_SHIFT) == MK_SHIFT)
+                {
+                    animationState.HorizontalScrollAnimation.Scroll(-GetHorizontalScrollDistance(animationState, delta));
+                }
+                else
+                {
+                    animationState.VerticalScrollAnimation.Scroll(GetVerticalScrollDistance(animationState, delta));
+                }
+
+                _activeAnimationStates.Add(animationState);
                 handled = true;
-                return default;
             }
-
-            var delta = (int)wParam >> 16;
-            if (msg == WM_MOUSEWHEEL && (wParam & MK_CONTROL) == MK_CONTROL && animationState.CanZoom)
+            catch (Exception ex)
             {
-                var scale = delta > 0 ? delta / 1200.0 : delta / 1320.0;
-                animationState.ZoomAnimation.Zoom(animationState.View.ZoomLevel, scale, Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt));
+                ExtensionDiagnostics.TraceException("HwndSource.Hook", ex);
             }
-            else if (msg == WM_MOUSEHWHEEL)
-            {
-                animationState.HorizontalScrollAnimation.Scroll(GetHorizontalScrollDistance(animationState, delta));
-            }
-            else if ((wParam & MK_SHIFT) == MK_SHIFT)
-            {
-                animationState.HorizontalScrollAnimation.Scroll(-GetHorizontalScrollDistance(animationState, delta));
-            }
-            else
-            {
-                animationState.VerticalScrollAnimation.Scroll(GetVerticalScrollDistance(animationState, delta));
-            }
-
-            _activeAnimationStates.Add(animationState);
-            handled = true;
 
             return default;
         }
@@ -207,33 +218,47 @@ internal static class WheelEngine
 
     private static void FrameRendering(object sender, EventArgs e)
     {
-        ProcessPendingLowLevelMouseWheelInputs();
-        _activeAnimationStates.RemoveWhere(animationState => !animationState.IsAnimating || animationState.View.IsClosed);
-
-        foreach (var animationState in _activeAnimationStates)
+        try
         {
-            if (!animationState.CanAnimate)
-            {
-                continue;
-            }
+            ProcessPendingLowLevelMouseWheelInputs();
+            _activeAnimationStates.RemoveWhere(animationState => !animationState.IsAnimating || animationState.View.IsClosed);
 
-            if (animationState.VerticalScrollAnimation.IsAnimating)
+            foreach (var animationState in _activeAnimationStates)
             {
-                var distance = animationState.VerticalScrollAnimation.CalculateDistance();
-                animationState.ViewScroller.VerticallyScroll(distance);
-            }
+                if (!animationState.CanAnimate)
+                {
+                    continue;
+                }
 
-            if (animationState.HorizontalScrollAnimation.IsAnimating)
-            {
-                var distance = animationState.HorizontalScrollAnimation.CalculateDistance();
-                animationState.ViewScroller.HorizontallyScroll(distance);
-            }
+                try
+                {
+                    if (animationState.VerticalScrollAnimation.IsAnimating)
+                    {
+                        var distance = animationState.VerticalScrollAnimation.CalculateDistance();
+                        animationState.ViewScroller.VerticallyScroll(distance);
+                    }
 
-            if (animationState.ZoomAnimation.IsAnimating)
-            {
-                var zoomLevel = animationState.ZoomAnimation.CalculateZoomLevel();
-                animationState.View.Options.GlobalOptions.SetOptionValue(DefaultWpfViewOptions.ZoomLevelId, zoomLevel);
+                    if (animationState.HorizontalScrollAnimation.IsAnimating)
+                    {
+                        var distance = animationState.HorizontalScrollAnimation.CalculateDistance();
+                        animationState.ViewScroller.HorizontallyScroll(distance);
+                    }
+
+                    if (animationState.ZoomAnimation.IsAnimating)
+                    {
+                        var zoomLevel = animationState.ZoomAnimation.CalculateZoomLevel();
+                        animationState.View.Options.GlobalOptions.SetOptionValue(DefaultWpfViewOptions.ZoomLevelId, zoomLevel);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ExtensionDiagnostics.TraceException("FrameRendering.AnimateView", ex);
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            ExtensionDiagnostics.TraceException("FrameRendering", ex);
         }
     }
 
