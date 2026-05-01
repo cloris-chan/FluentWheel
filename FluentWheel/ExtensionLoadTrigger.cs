@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.Extensibility.Editor;
 namespace Cloris.FluentWheel;
 
 [VisualStudioContribution]
-public sealed class TextViewContribution : ExtensionPart, ITextViewOpenClosedListener
+public sealed class ExtensionLoadTrigger : ExtensionPart, ITextViewOpenClosedListener
 {
     public TextViewExtensionConfiguration TextViewExtensionConfiguration { get; } = new() { AppliesTo = [DocumentFilter.FromDocumentType("text")] };
 
