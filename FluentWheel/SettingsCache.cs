@@ -1,7 +1,7 @@
 #pragma warning disable VSEXTPREVIEW_SETTINGS
+using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.Extensibility;
 using Microsoft.VisualStudio.Extensibility.Settings;
-using System.Runtime.CompilerServices;
 
 namespace Cloris.FluentWheel;
 
@@ -11,25 +11,25 @@ internal static class SettingsCache
 
     public static event Action<string>? SettingsChanged;
 
-    public static int ScrollDuration { get => field; private set => SetProperty(ref field, value); }
+    public static int ScrollDuration { get; private set => SetProperty(ref field, value); }
 
-    public static EasingMode ScrollEasingMode { get => field; private set => SetProperty(ref field, value); }
+    public static EasingMode ScrollEasingMode { get; private set => SetProperty(ref field, value); }
 
-    public static int VerticalScrollRate { get => field; private set => SetProperty(ref field, value); }
+    public static int VerticalScrollRate { get; private set => SetProperty(ref field, value); }
 
-    public static int HorizontalScrollRate { get => field; private set => SetProperty(ref field, value); }
+    public static int HorizontalScrollRate { get; private set => SetProperty(ref field, value); }
 
-    public static int ZoomDuration { get => field; private set => SetProperty(ref field, value); }
+    public static int ZoomDuration { get; private set => SetProperty(ref field, value); }
 
-    public static EasingMode ZoomEasingMode { get => field; private set => SetProperty(ref field, value); }
+    public static EasingMode ZoomEasingMode { get; private set => SetProperty(ref field, value); }
 
-    public static bool EnableLowLevelMouseHook { get => field; private set => SetProperty(ref field, value); }
+    public static bool EnableLowLevelMouseHook { get; private set => SetProperty(ref field, value); }
 
-    public static int LinesPerVerticalScroll { get => field; private set => SetProperty(ref field, value); } = 3;
+    public static int LinesPerVerticalScroll { get; private set => SetProperty(ref field, value); } = 3;
 
-    public static int CharsPerHorizontalScroll { get => field; private set => SetProperty(ref field, value); } = 10;
+    public static int CharsPerHorizontalScroll { get; private set => SetProperty(ref field, value); } = 10;
 
-    public static double FastScrollMultiplier { get => field; private set => SetProperty(ref field, value); } = 5.0;
+    public static double FastScrollMultiplier { get; private set => SetProperty(ref field, value); } = 5.0;
 
     public static async Task InitializeAsync(VisualStudioExtensibility extensibility, CancellationToken cancellationToken)
     {

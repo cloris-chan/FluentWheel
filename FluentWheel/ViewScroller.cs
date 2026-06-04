@@ -1,6 +1,6 @@
+using System.Windows.Input;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
-using System.Windows.Input;
 
 namespace Cloris.FluentWheel;
 

@@ -30,7 +30,6 @@ internal sealed class TextViewAnimationState
 
     public bool CanZoom { get; private set; }
 
-
     public TextViewAnimationState(IWpfTextView wpfTextView)
     {
         const string ZoomControlMarginFullName = "Microsoft.VisualStudio.Text.Editor.Implementation.ZoomControlMargin";
