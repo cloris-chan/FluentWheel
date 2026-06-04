@@ -264,7 +264,7 @@ internal static class WheelEngine
 
     public static void HorizontalScroll(TextViewAnimationState animationState, double distance)
     {
-        if (animationState.CanAnimate)
+        if (animationState.CanQueueAnimation)
         {
             animationState.HorizontalScrollAnimation.Scroll(distance);
             _activeAnimationStates.Add(animationState);
@@ -273,7 +273,7 @@ internal static class WheelEngine
 
     public static void VerticalScroll(TextViewAnimationState animationState, double distance)
     {
-        if (animationState.CanAnimate)
+        if (animationState.CanQueueAnimation)
         {
             animationState.VerticalScrollAnimation.Scroll(distance);
             _activeAnimationStates.Add(animationState);
