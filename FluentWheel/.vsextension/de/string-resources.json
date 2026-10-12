@@ -1,0 +1,11 @@
+{
+  "FluentWheel.Settings.Category": "Fluent Wheel",
+  "FluentWheel.Settings.ScrollDuration": "Dauer der Scrollanimation",
+  "FluentWheel.Settings.ScrollDuration.Description": "Die Dauer der Scrollanimation in Millisekunden (ms).",
+  "FluentWheel.Settings.VerticalScrollRate": "Vertikale Scrollrate",
+  "FluentWheel.Settings.VerticalScrollRate.Description": "Prozentsatz (%) zur Steuerung der vertikalen, flüssigen Scrollgeschwindigkeit.",
+  "FluentWheel.Settings.HorizontalScrollRate": "Horizontale Scrollrate",
+  "FluentWheel.Settings.HorizontalScrollRate.Description": "Prozentsatz (%) zur Steuerung der horizontalen flüssigen Scrollgeschwindigkeit.",
+  "FluentWheel.Settings.ZoomDuration": "Dauer der Zoomanimation",
+  "FluentWheel.Settings.ZoomDuration.Description": "Die Dauer der Zoomanimation in Millisekunden (ms)."
+}

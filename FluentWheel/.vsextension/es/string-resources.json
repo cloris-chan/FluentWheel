@@ -1,0 +1,11 @@
+{
+  "FluentWheel.Settings.Category": "Fluent Wheel",
+  "FluentWheel.Settings.ScrollDuration": "Duración de la animación de desplazamiento",
+  "FluentWheel.Settings.ScrollDuration.Description": "La duración de la animación de desplazamiento en milisegundos (ms).",
+  "FluentWheel.Settings.VerticalScrollRate": "Velocidad de desplazamiento vertical",
+  "FluentWheel.Settings.VerticalScrollRate.Description": "Porcentaje (%) que controla la velocidad de desplazamiento suave vertical.",
+  "FluentWheel.Settings.HorizontalScrollRate": "Velocidad de desplazamiento horizontal",
+  "FluentWheel.Settings.HorizontalScrollRate.Description": "Porcentaje (%) que controla la velocidad de desplazamiento suave horizontal.",
+  "FluentWheel.Settings.ZoomDuration": "Duración de la animación de zoom",
+  "FluentWheel.Settings.ZoomDuration.Description": "La duración de la animación de zoom en milisegundos (ms)."
+}

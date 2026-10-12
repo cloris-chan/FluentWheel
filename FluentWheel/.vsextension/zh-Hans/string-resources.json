@@ -1,0 +1,11 @@
+{
+  "FluentWheel.Settings.Category": "Fluent Wheel",
+  "FluentWheel.Settings.ScrollDuration": "滚动动画持续时间",
+  "FluentWheel.Settings.ScrollDuration.Description": "滚动动画的持续时间（毫秒）。",
+  "FluentWheel.Settings.VerticalScrollRate": "纵向滚动速率",
+  "FluentWheel.Settings.VerticalScrollRate.Description": "纵向平滑滚动速度的百分比 (%) 值。",
+  "FluentWheel.Settings.HorizontalScrollRate": "横向滚动速率",
+  "FluentWheel.Settings.HorizontalScrollRate.Description": "横向平滑滚动速度的百分比 (%) 值。",
+  "FluentWheel.Settings.ZoomDuration": "缩放动画持续时间",
+  "FluentWheel.Settings.ZoomDuration.Description": "缩放动画的持续时间（毫秒）。"
+}

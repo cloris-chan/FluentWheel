@@ -1,0 +1,11 @@
+{
+  "FluentWheel.Settings.Category": "Fluent Wheel",
+  "FluentWheel.Settings.ScrollDuration": "스크롤 애니메이션 지속 시간",
+  "FluentWheel.Settings.ScrollDuration.Description": "스크롤 애니메이션의 지속 시간(밀리초(ms)).",
+  "FluentWheel.Settings.VerticalScrollRate": "수직 스크롤 속도",
+  "FluentWheel.Settings.VerticalScrollRate.Description": "수직 부드러운 스크롤 속도를 제어하는 백분율(%).",
+  "FluentWheel.Settings.HorizontalScrollRate": "수평 스크롤 속도",
+  "FluentWheel.Settings.HorizontalScrollRate.Description": "수평 부드러운 스크롤 속도를 제어하는 백분율(%).",
+  "FluentWheel.Settings.ZoomDuration": "확대/축소 애니메이션 지속 시간",
+  "FluentWheel.Settings.ZoomDuration.Description": "확대/축소 애니메이션의 지속 시간(밀리초(ms))."
+}
